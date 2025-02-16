@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
+import '@ant-design/v5-patch-for-react-19';
+import { Toaster } from 'react-hot-toast';
 
 const roboto = Roboto({
     subsets: ['vietnamese'],
@@ -21,6 +23,7 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${roboto.className} min-h-[100vh]`}>
                 {children}
+                <Toaster position="top-right" />
             </body>
         </html>
     );
