@@ -10,6 +10,7 @@ const {
 } = require('./config/env');
 const db = require('./config/db');
 const cookieParser = require('cookie-parser');
+const configureWebSocket = require('./config/socket/index');
 const passport = require('passport');
 const User = require('./models/User');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -69,6 +70,9 @@ app.use(
     })
 );
 app.use(express.json());
+
+//socket.io
+configureWebSocket(server);
 
 //Config route
 route(app);

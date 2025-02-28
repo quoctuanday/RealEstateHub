@@ -6,7 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import '@ant-design/v5-patch-for-react-19';
 import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook } from 'react-icons/fa';
 import { login } from '@/api/api';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -24,7 +23,7 @@ function LoginPage() {
                 const response = await login(values);
                 if (response) {
                     toast.success('Đăng nhập thành công!');
-                    sessionStorage.setItem('token', response.data.accessToken);
+                    localStorage.setItem('token', response.data.accessToken);
                     setTimeout(() => {
                         router.push('/home');
                     }, 2000);
@@ -118,7 +117,7 @@ function LoginPage() {
                         <span className="mx-2 text-gray-500">Hoặc</span>
                         <div className="flex-grow border-t border-gray-300"></div>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                         <Button
                             htmlType="button"
                             onClick={() => {
@@ -129,14 +128,6 @@ function LoginPage() {
                                 <FcGoogle className="" />{' '}
                                 <span className="ml-2">
                                     Đăng nhập bằng Google
-                                </span>
-                            </div>
-                        </Button>
-                        <Button htmlType="button" className="ml-2">
-                            <div className="flex items-center justify-center">
-                                <FaFacebook className="text-blue" />{' '}
-                                <span className="ml-2">
-                                    Đăng nhập bằng Facebook
                                 </span>
                             </div>
                         </Button>

@@ -3,6 +3,7 @@ import { Roboto } from 'next/font/google';
 import './globals.css';
 import '@ant-design/v5-patch-for-react-19';
 import { Toaster } from 'react-hot-toast';
+import Provider from '@/store/store';
 
 const roboto = Roboto({
     subsets: ['vietnamese'],
@@ -21,8 +22,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${roboto.className} min-h-[100vh]`}>
-                {children}
+            <body
+                className={`${roboto.className} min-h-[100vh] roboto-regular`}
+            >
+                <Provider>{children}</Provider>
                 <Toaster position="top-right" />
             </body>
         </html>

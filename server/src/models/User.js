@@ -25,6 +25,7 @@ const User = new Schema(
             required: true,
         },
         rate: { type: Number, default: 0 },
+        accountBalance: { type: Number, default: 0 },
         isBlocked: { type: Boolean, default: false },
     },
     { timestamps: true }

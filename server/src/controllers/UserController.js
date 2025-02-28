@@ -99,5 +99,38 @@ class UserController {
                 return res.status(500).json({ error: 'Internal Server Error' });
             });
     }
+    logOut(req, res) {
+        res.clearCookie('refreshToken');
+        res.status(200).json({ message: 'Log out successfully' });
+    }
+
+    refreshToken(req, res) {
+        const refreshToken = req.cookies.refreshToken;
+        console.log('refresh token', refreshToken);
+        if (!refreshToken) return res.status(401);
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, user) => {
+                if (err) {
+                    console.log('refresh token error', err);
+                    return res.status(403);
+                }
+
+                //Create new access token
+                const newAccessToken = jwt.sign(
+                    { userId: user.userId, role: user.role },
+                    ACCESS_TOKEN_SECRET,
+                    { expiresIn: '5h' }
+                );
+                res.json({ accessToken: newAccessToken });
+            }
+        );
+    }
+
+    update(req, res) {
+        const data = req.body.data;
+        console.log(data);
+    }
 }
 module.exports = new UserController();

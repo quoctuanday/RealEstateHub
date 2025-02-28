@@ -9,6 +9,7 @@ export type User = {
     phoneNumber?: string;
     rate?: number;
     DOB?: Date;
+    accountBalance?: number;
     role: 'admin' | 'moderator' | 'user';
     isBlocked: boolean;
     createdAt?: string;

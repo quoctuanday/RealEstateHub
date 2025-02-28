@@ -34,7 +34,7 @@ async function refreshAccessToken() {
 //Send request with authorization
 api.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('token');
+        const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -53,7 +53,7 @@ api.interceptors.response.use(
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             const newAccessToken = await refreshAccessToken();
-            sessionStorage.setItem('token', newAccessToken);
+            localStorage.setItem('token', newAccessToken);
             originalRequest.headers[
                 'Authorization'
             ] = `Bearer ${newAccessToken}`;
@@ -61,17 +61,24 @@ api.interceptors.response.use(
         }
         if (error.response.status === 403) {
             localStorage.clear();
-            sessionStorage.clear();
             window.location.href = '/login';
         }
         return Promise.reject(error);
     }
 );
 
+//User
+export const login = (data) =>
+    api.post('/users/login', { data }, { withCredentials: true });
+export const getUser = () => api.get('/users/getUser');
+export const logout = () => api.get('/users/logout', { withCredentials: true });
 export const createUser = (data) =>
     api.post('/users/createUser', {
         data,
     });
-export const login = (data) =>
-    api.post('/users/login', { data }, { withCredentials: true });
-export const getUser = () => api.get('/users/getUser');
+export const updateUser = (data) => api.put('/users/updateOne', { data });
+
+//Payment
+export const checkOut = (data) => api.post('/payment/vnpay/create', { data });
+export const updateCheckout = (query, data) =>
+    api.put(`/payment/vnpay/callback?${query}`, { data });

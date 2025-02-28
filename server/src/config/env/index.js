@@ -9,4 +9,9 @@ module.exports = {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+    vnp_TmnCode: process.env.vnp_TmnCode,
+    vnp_HashSecret: process.env.vnp_HashSecret,
+    vnp_Url: process.env.vnp_Url,
+    vnp_Api: process.env.vnp_Api,
+    vnp_ReturnUrl: process.env.vnp_ReturnUrl,
 };
