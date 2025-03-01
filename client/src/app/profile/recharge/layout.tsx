@@ -1,3 +1,5 @@
+'use client';
+import FooterPage from '@/components/footer';
 import TitleComponent from '@/components/title';
 
 export default function RechargeLayout({
@@ -8,7 +10,8 @@ export default function RechargeLayout({
     return (
         <div className="mt-[1.25rem]">
             <TitleComponent title="Nạp tiền vào tài khoản" />
-            <div className="">{children}</div>
+            <div className="min-h-[30rem]">{children}</div>
+            <FooterPage />
         </div>
     );
 }

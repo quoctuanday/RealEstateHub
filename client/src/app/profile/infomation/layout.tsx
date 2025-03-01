@@ -1,3 +1,5 @@
+'use client';
+import Footer from '@/components/footer';
 import TitleComponent from '@/components/title';
 
 export default function InfoLayout({
@@ -13,6 +15,7 @@ export default function InfoLayout({
                     {children}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

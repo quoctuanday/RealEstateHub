@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { FaCamera } from 'react-icons/fa';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/firebase/config';
+import { useRouter } from 'next/navigation';
 
 type FieldType = {
     userName: string;
@@ -20,6 +21,7 @@ type FieldType = {
 };
 
 function EditProfilePage() {
+    const router = useRouter();
     const { userLoginData } = useUser();
     const [form] = Form.useForm();
     const [changeImage, setChangeImage] = useState<string | null | undefined>(
@@ -95,6 +97,8 @@ function EditProfilePage() {
         const sendData = async () => {
             const response = await updateUser(formattedValues);
             if (response) {
+                toast.success('Chỉnh sửa thông tin thành công!');
+                router.push('/profile/infomation');
             }
         };
         sendData();

@@ -72,6 +72,8 @@ export const login = (data) =>
     api.post('/users/login', { data }, { withCredentials: true });
 export const getUser = () => api.get('/users/getUser');
 export const logout = () => api.get('/users/logout', { withCredentials: true });
+export const changePassword = (data) =>
+    api.put('/users/changePassword', { data });
 export const createUser = (data) =>
     api.post('/users/createUser', {
         data,

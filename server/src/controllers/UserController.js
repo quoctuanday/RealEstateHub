@@ -130,7 +130,46 @@ class UserController {
 
     update(req, res) {
         const data = req.body.data;
-        console.log(data);
+        const userId = req.user.userId;
+        User.findByIdAndUpdate(userId, data)
+            .then((user) => {
+                if (!user) {
+                    res.status(404).json({ message: 'User not found' });
+                }
+                res.status(200).json({ message: 'User successfully updated' });
+            })
+            .catch((error) => {
+                res.status(500).json({ message: 'Internal Server Error' });
+            });
+    }
+    async changePassword(req, res) {
+        try {
+            let { confirmPassword, ...data } = req.body.data;
+            const userId = req.user.userId;
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            const passwordMatch = await bcrypt.compare(
+                data.oldPassword,
+                user.password
+            );
+            if (!passwordMatch) {
+                return res.status(401).json({ message: 'Password mismatch' });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPass = await bcrypt.hash(data.password, salt);
+
+            await User.findByIdAndUpdate(userId, { password: hashedPass });
+
+            return res.status(200).json({ message: 'Password updated' });
+        } catch (error) {
+            console.error('Error changing password:', error);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
     }
 }
 module.exports = new UserController();

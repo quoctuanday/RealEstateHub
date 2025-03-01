@@ -1,11 +1,13 @@
 'use client';
 import { logout } from '@/api/api';
+import { useUser } from '@/store/store';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { CiLock, CiViewList } from 'react-icons/ci';
 import { GoPerson } from 'react-icons/go';
+import { GrUserAdmin } from 'react-icons/gr';
 import { IoIosLogOut } from 'react-icons/io';
 import { IoPieChartOutline } from 'react-icons/io5';
 import { LuHandCoins } from 'react-icons/lu';
@@ -15,6 +17,7 @@ export default function ProfileLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const { userLoginData } = useUser();
     const router = useRouter();
     const handleLogOut = () => {
         const logOut = async () => {
@@ -71,7 +74,7 @@ export default function ProfileLayout({
                     </li>
                     <li className="px-2 text-center py-2 hover:bg-hoverColor cursor-pointer">
                         <Link
-                            href={'#'}
+                            href={'/profile/infomation/edit/changePass'}
                             className="flex flex-col items-center hover:text-rootColor "
                         >
                             <i className="text-[1.25rem] roboto-bold">
@@ -102,6 +105,19 @@ export default function ProfileLayout({
                             <span className="">Nạp tiền</span>
                         </Link>
                     </li>
+                    {userLoginData?.role === 'admin' && (
+                        <li className="px-2 text-center py-2 hover:bg-hoverColor cursor-pointer border-b">
+                            <Link
+                                href={'/profile/recharge'}
+                                className="flex flex-col items-center hover:text-rootColor "
+                            >
+                                <i className="text-[1.25rem] roboto-bold">
+                                    <GrUserAdmin />
+                                </i>{' '}
+                                <span className="">Admin</span>
+                            </Link>
+                        </li>
+                    )}
                     <li className="px-2 text-center hover:text-rootColor py-2 hover:bg-hoverColor cursor-pointer">
                         <button
                             onClick={() => handleLogOut()}

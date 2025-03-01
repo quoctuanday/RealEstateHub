@@ -58,13 +58,13 @@ function AmountPage() {
     };
 
     return (
-        <div className="bg-hoverColor w-full h-full flex justify-center">
+        <div className="bg-hoverColor pb-[1.25rem] w-full h-full flex justify-center">
             <Form
                 form={form}
                 onFinish={handleFinish}
                 layout="vertical"
                 validateMessages={validateMessages}
-                className=" mt-[1.25rem] p-[1.25rem] w-[50rem] h-[50rem] rounded bg-white"
+                className=" mt-[1.25rem] p-[1.25rem] w-[50rem] h-[30rem] rounded bg-white"
             >
                 <Form.Item<FieldType>
                     label={

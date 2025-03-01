@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/UserController');
 const authenticateToken = require('../middleware/auth');
 
+router.put('/changePassword', authenticateToken, userController.changePassword);
 router.put('/updateOne', authenticateToken, userController.update);
 router.get('/getUser', authenticateToken, userController.getUser);
 router.post('/login', userController.login);
