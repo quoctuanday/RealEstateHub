@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import { createUser } from '@/api/api';
-import '@ant-design/v5-patch-for-react-19';
 import toast from 'react-hot-toast';
 import { TfiReload } from 'react-icons/tfi';
 import { useRouter } from 'next/navigation';
+import '@ant-design/v5-patch-for-react-19';
 
 type FieldType = {
     userName?: string;

@@ -3,13 +3,10 @@ const User = require('./User');
 const mongooseDelete = require('mongoose-delete');
 const Schema = mongoose.Schema;
 
-const Post = new Schema(
+const PostSchema = new Schema(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: User },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         title: { type: String, required: true },
-        ownerName: { type: String, required: true },
-        contactNumber: { type: String, required: true },
-        contactEmail: { type: String },
         description: { type: String, required: true },
         location: {
             name: { type: String, required: true },
@@ -26,9 +23,15 @@ const Post = new Schema(
         isCheckout: { type: Boolean, required: true, default: false },
         rate: { type: Number, default: 0 },
         feedBack: { type: String },
+        postType: { type: String, enum: ['sell', 'rent'], required: true },
+        houseType: {
+            type: String,
+            required: true,
+        },
     },
     { timestamps: true }
 );
-Post.plugin(mongooseDelete, { overrideMethods: 'all' });
 
-module.exports = mongoose.model('Post', Post);
+PostSchema.plugin(mongooseDelete, { overrideMethods: 'all' });
+
+module.exports = mongoose.model('Post', PostSchema);

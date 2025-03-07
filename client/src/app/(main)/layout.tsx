@@ -1,7 +1,6 @@
 'use client';
 import { getUser, logout } from '@/api/api';
 import { useUser } from '@/store/store';
-import '@ant-design/v5-patch-for-react-19';
 import { Button } from 'antd';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -133,7 +132,9 @@ export default function MainLayout({
                                     </li>
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <Link
-                                            href={'#'}
+                                            href={
+                                                '/profile/infomation/edit/changePass'
+                                            }
                                             className="flex items-center "
                                         >
                                             <i>
@@ -146,7 +147,7 @@ export default function MainLayout({
                                     </li>
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <Link
-                                            href={'#'}
+                                            href={'/profile/managePost'}
                                             className="flex items-center "
                                         >
                                             <i>

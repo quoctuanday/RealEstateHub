@@ -4,11 +4,11 @@ import React from 'react';
 import { Input, Form, FormProps, Button } from 'antd';
 import Link from 'next/link';
 import Image from 'next/image';
-import '@ant-design/v5-patch-for-react-19';
 import { FcGoogle } from 'react-icons/fc';
 import { login } from '@/api/api';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import '@ant-design/v5-patch-for-react-19';
 
 type FieldType = {
     email?: string;

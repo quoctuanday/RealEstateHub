@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({ baseURL: process.env.NEXT_PUBLIC_SERVER_URL });
+const api_map = axios.create({ baseURL: 'https://provinces.open-api.vn/api' });
 export default api;
 
 async function refreshAccessToken() {
@@ -84,3 +85,10 @@ export const updateUser = (data) => api.put('/users/updateOne', { data });
 export const checkOut = (data) => api.post('/payment/vnpay/create', { data });
 export const updateCheckout = (query, data) =>
     api.put(`/payment/vnpay/callback?${query}`, { data });
+
+//Post
+export const createPost = (data) => api.post('/posts/create', { data });
+
+//Map
+export const getProvince = () => api_map.get('/p/');
+export const getDistrict = (code) => api_map.get(`/p/${code}?depth=3`);

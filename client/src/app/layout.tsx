@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
-import '@ant-design/v5-patch-for-react-19';
 import { Toaster } from 'react-hot-toast';
 import Provider from '@/store/store';
+import '@ant-design/v5-patch-for-react-19';
 
 const roboto = Roboto({
     subsets: ['vietnamese'],
