@@ -92,3 +92,7 @@ export const createPost = (data) => api.post('/posts/create', { data });
 //Map
 export const getProvince = () => api_map.get('/p/');
 export const getDistrict = (code) => api_map.get(`/p/${code}?depth=3`);
+
+//ChatGPT
+export const generateTitle = (data) =>
+    api.post('/chatGPT/generateTitle', { data });

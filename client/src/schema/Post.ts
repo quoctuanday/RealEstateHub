@@ -1,18 +1,23 @@
 export type Post = {
     _id: string;
-    userId: string;
+    userId?: string;
     userName?: string;
     title: string;
-    images: string;
+    images: string[];
     phoneNumber: string;
     email: string;
     description: string;
-    location: {
+    location?: {
         name: string;
         coordinates: {
             latitude: number;
             longitude: number;
         };
+    };
+    features?: {
+        bathroom: number;
+        room: number;
+        convenients: string[];
     };
     isCheckout?: boolean;
     urlSaveImages: string;

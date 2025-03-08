@@ -14,4 +14,5 @@ module.exports = {
     vnp_Url: process.env.vnp_Url,
     vnp_Api: process.env.vnp_Api,
     vnp_ReturnUrl: process.env.vnp_ReturnUrl,
+    BOT_GPT_API: process.env.BOT_GPT_API,
 };

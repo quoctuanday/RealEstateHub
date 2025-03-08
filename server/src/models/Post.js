@@ -15,6 +15,11 @@ const PostSchema = new Schema(
                 longitude: { type: Number, required: true },
             },
         },
+        features: {
+            bathroom: { type: Number },
+            room: { type: Number },
+            convenients: { type: [String] },
+        },
         acreage: { type: Number, required: true },
         images: { type: [String], required: true },
         urlSaveImages: { type: String },

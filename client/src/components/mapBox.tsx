@@ -1,12 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMapBox } from '@/api/places/goong';
 
+interface Location {
+    name: string;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+}
+
 type MapComponentProps = {
     address: string;
+    setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
 };
 
-const GoongMap = ({ address }: MapComponentProps) => {
+const GoongMap = ({ address, setLocation }: MapComponentProps) => {
     const mapRef = useRef(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const markerRef = useRef<any>(null);
     const [center, setCenter] = useState<{ lat: number; lng: number } | null>(
         null
@@ -24,7 +34,7 @@ const GoongMap = ({ address }: MapComponentProps) => {
         } catch (error) {
             console.error('Lỗi khi lấy tọa độ:', error);
         }
-        return null; // Không trả về tọa độ mặc định
+        return null;
     };
 
     useEffect(() => {
@@ -32,20 +42,28 @@ const GoongMap = ({ address }: MapComponentProps) => {
             fetchCoordinates(address).then((coords) => {
                 if (coords) {
                     setCenter(coords);
+                    setLocation((prev) => ({
+                        name: prev?.name || '',
+                        coordinates: {
+                            latitude: coords?.lat ?? 21.028,
+                            longitude: coords?.lng ?? 105.83991,
+                        },
+                    }));
                 }
             });
         }
-    }, [address]);
+    }, [address, setLocation]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && center && !mapLoaded) {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const goongjs = require('@goongmaps/goong-js');
             goongjs.accessToken = process.env.NEXT_PUBLIC_MAP_BOX_API;
 
             mapRef.current = new goongjs.Map({
                 container: 'map',
                 style: 'https://tiles.goong.io/assets/goong_map_web.json',
-                center: [center.lng, center.lat], // Chỉ render khi có tọa độ
+                center: [center.lng, center.lat],
                 zoom: 14,
             });
 
@@ -57,13 +75,20 @@ const GoongMap = ({ address }: MapComponentProps) => {
                 const newCoords = markerRef.current.getLngLat();
                 console.log('Tọa độ mới sau khi kéo:', newCoords);
                 setCenter({ lat: newCoords.lat, lng: newCoords.lng });
+                setLocation((prev) => ({
+                    name: prev?.name || '',
+                    coordinates: {
+                        latitude: newCoords?.lat ?? 21.028,
+                        longitude: newCoords?.lng ?? 105.83991,
+                    },
+                }));
             });
             setMapLoaded(true);
         }
-    }, [center, mapLoaded]);
+    }, [center, mapLoaded, setLocation]);
 
     useEffect(() => {
-        if (markerRef.current && center) {
+        if (markerRef.current && mapRef.current && center) {
             markerRef.current.setLngLat([center.lng, center.lat]);
         }
     }, [center]);

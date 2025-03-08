@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { autoComplete, getPlaceDetail } from '@/api/places/goong';
+import { autoComplete } from '@/api/places/goong';
 import { Button, Input } from 'antd';
-import { PlaceDetail, Suggestion } from '@/schema/goong';
+import { Suggestion } from '@/schema/goong';
 import AddressChoose from '@/components/addressChoose';
 
 interface Location {
@@ -16,31 +16,35 @@ interface Location {
 
 interface MyAddressInputProps {
     setLocation: React.Dispatch<React.SetStateAction<Location | null>>;
+    location: Location | null;
 }
 
-const MyAddressInput: React.FC<MyAddressInputProps> = ({ setLocation }) => {
+const MyAddressInput: React.FC<MyAddressInputProps> = ({
+    setLocation,
+    location,
+}) => {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const [selectedDetail, setSelectedDetail] = useState<PlaceDetail | null>(
-        null
-    );
     const [sessionToken] = useState(uuidv4());
     const [formAdrres, setFormAddress] = useState(false);
+
+    useEffect(() => {
+        if (location?.name) {
+            setQuery(location.name);
+        }
+    }, [location?.name]);
 
     const handleInputChange = async (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
         const value = e.target.value;
         setQuery(value);
-        setSelectedDetail(null);
-        // Gọi API khi từ khóa có ít nhất 3 ký tự
         if (value.length < 3) {
             setSuggestions([]);
             return;
         }
 
         try {
-            // Ví dụ sử dụng location cố định; bạn có thể lấy tọa độ người dùng nếu cần
             const location = '21.013715429594125,105.79829597455202';
             const params = {
                 input: value,
@@ -60,27 +64,19 @@ const MyAddressInput: React.FC<MyAddressInputProps> = ({ setLocation }) => {
 
     const handleSuggestionClick = async (suggestion: Suggestion) => {
         try {
-            const params = {
-                place_id: suggestion.place_id,
-                sessiontoken: sessionToken,
-            };
-            const { data } = await getPlaceDetail(params);
-            setSelectedDetail(data.result);
+            const nameAdress =
+                suggestion.structured_formatting?.secondary_text ?? '';
+
+            setLocation((prev) => ({
+                ...prev,
+                name: nameAdress,
+                coordinates: prev?.coordinates ?? { latitude: 0, longitude: 0 },
+            }));
+            console.log(nameAdress);
         } catch (error) {
             console.error('Lỗi khi lấy chi tiết địa điểm:', error);
         }
     };
-    // const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setLocation((prevState) => {
-    //         if (prevState === null) {
-    //             return {
-    //                 name: e.target.value,
-    //                 coordinates: { latitude: 0, longitude: 0 },
-    //             };
-    //         }
-    //         return { ...prevState, name: e.target.value };
-    //     });
-    // };
 
     return (
         <div>
@@ -115,29 +111,11 @@ const MyAddressInput: React.FC<MyAddressInputProps> = ({ setLocation }) => {
             >
                 Chọn địa chỉ
             </Button>
-            {formAdrres && <AddressChoose setFormAddress={setFormAddress} />}
-            {selectedDetail && (
-                <div
-                    style={{
-                        marginTop: '20px',
-                        border: '1px solid #ccc',
-                        padding: '10px',
-                    }}
-                >
-                    <h2>{selectedDetail.name}</h2>
-                    <p>
-                        <strong>Địa chỉ:</strong>{' '}
-                        {selectedDetail.formatted_address}
-                    </p>
-                    <p>
-                        <strong>Vĩ độ:</strong>{' '}
-                        {selectedDetail.geometry?.location?.lat}
-                    </p>
-                    <p>
-                        <strong>Kinh độ:</strong>{' '}
-                        {selectedDetail.geometry?.location?.lng}
-                    </p>
-                </div>
+            {formAdrres && (
+                <AddressChoose
+                    setFormAddress={setFormAddress}
+                    setAddressLocation={setLocation}
+                />
             )}
         </div>
     );

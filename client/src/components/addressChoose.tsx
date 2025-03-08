@@ -1,12 +1,13 @@
 'use client';
 import { getProvince, getDistrict } from '@/api/api';
 import GoongMap from '@/components/mapBox';
-import { Button, Input, Radio, Select } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Button, Input, InputRef, Radio, Select } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 
 interface Props {
     setFormAddress: React.Dispatch<React.SetStateAction<boolean>>;
+    setAddressLocation: React.Dispatch<React.SetStateAction<Adress | null>>;
 }
 
 type Ward = {
@@ -35,7 +36,15 @@ type Province = {
     phone_code: number;
 };
 
-function AddressChoose({ setFormAddress }: Props) {
+interface Adress {
+    name: string;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+}
+
+function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
         null
     );
@@ -47,6 +56,7 @@ function AddressChoose({ setFormAddress }: Props) {
     const [filteredDistricts, setFilteredDistricts] = useState<District[]>([]);
     const [address, setAddress] = useState('');
     const [addressForMap, setAddressForMap] = useState('');
+    const addressPostRef = useRef<InputRef>(null);
 
     useEffect(() => {
         const getData = async () => {
@@ -262,27 +272,51 @@ function AddressChoose({ setFormAddress }: Props) {
                         Địa chỉ hiển thị trên tin đăng
                     </h2>
                     <Input
+                        ref={addressPostRef}
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={(e) => {
+                            setAddress(e.target.value);
+                            setAddressLocation((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                                coordinates: prev?.coordinates ?? {
+                                    latitude: 0,
+                                    longitude: 0,
+                                },
+                            }));
+                        }}
                         placeholder="Địa chỉ hiển thị"
                     ></Input>
                 </div>
                 {addressForMap && (
                     <div className="mt-[1.25rem]">
-                        <GoongMap address={addressForMap} />
+                        <GoongMap
+                            address={addressForMap}
+                            setLocation={setAddressLocation}
+                        />
                     </div>
                 )}
 
                 <Button
                     type="primary"
                     htmlType="button"
-                    onClick={() =>
-                        console.log(
-                            selectedProvince,
-                            selectedDistrict,
-                            selectedWard
-                        )
-                    }
+                    className="mt-2"
+                    onClick={() => {
+                        if (addressPostRef.current) {
+                            setAddressLocation((prev) => ({
+                                name:
+                                    addressPostRef.current?.input?.value ?? '',
+                                coordinates: {
+                                    latitude:
+                                        prev?.coordinates.latitude ?? 21.028,
+                                    longitude:
+                                        prev?.coordinates.longitude ??
+                                        105.83991,
+                                },
+                            }));
+                            setFormAddress(false);
+                        }
+                    }}
                 >
                     Xác nhận
                 </Button>
