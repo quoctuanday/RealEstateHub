@@ -1,6 +1,7 @@
 const { CLIENT_PORT } = require('../env');
 const { Server } = require('socket.io');
 const userSocket = require('./UserSocket');
+const postSocket = require('./PostSocket');
 
 function configureWebSocket(server) {
     const io = new Server(server, {
@@ -14,6 +15,7 @@ function configureWebSocket(server) {
 
     console.log('WebSocket server đã khởi động');
     userSocket(io);
+    postSocket(io);
 
     io.on('connection', (socket) => {
         console.log('A user connected');

@@ -83,7 +83,7 @@ function FooterPage() {
                                 href="/rooms"
                                 className="hover:text-blue-400 transition-colors"
                             >
-                                Cho thuê phòng
+                                Bất động sản đăng bán
                             </Link>
                         </li>
                         <li>
@@ -91,7 +91,7 @@ function FooterPage() {
                                 href="/roommates"
                                 className="hover:text-blue-400 transition-colors"
                             >
-                                Tìm người ở ghép
+                                Bất động sản cho thuê
                             </Link>
                         </li>
                         <li>
@@ -158,8 +158,8 @@ function FooterPage() {
 
             <div className="mt-10 text-center text-sm border-t border-gray-600 pt-6">
                 <p>
-                    &copy; 2024 - Trang web tìm kiếm thông tin cho thuê, bán
-                    nhà.
+                    &copy; 2024 - Trang web tìm kiếm thông tin cho thuê, bán bất
+                    động sản.
                 </p>
             </div>
         </footer>

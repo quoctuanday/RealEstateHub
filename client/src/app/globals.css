@@ -20,7 +20,7 @@
         display: block;
     }
 
-    .children {
+    .appear {
         animation: hoverParent 0.5s linear;
     }
 
@@ -42,6 +42,32 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+}
+
+@layer components {
+    .bubble {
+        position: absolute;
+        min-width: 150px;
+        right: -15px;
+        top: 40px;
+        display: inline-block;
+        border: 1px solid;
+        border-radius: 30px;
+        background: #fff;
+    }
+
+    .bubble::after {
+        content: '';
+        position: absolute;
+        top: -20%;
+        z-index: -10;
+        right: 15%;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid #4b86d2;
     }
 }
 

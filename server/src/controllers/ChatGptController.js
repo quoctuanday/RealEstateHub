@@ -13,7 +13,12 @@ class ChatGPTController {
 
             const prompt = `Bạn là một chuyên gia viết bài cho bất động sản tại Việt Nam.
                     Dựa trên thông tin dưới đây, hãy tạo một tiêu đề hấp dẫn và mô tả chi tiết, mô tả đúng các thông tin được đưa vào, không 
-                    chỉnh sửa khác với thông tin được đưa ra. Phần mô tả dựa vào thông tin đã cho viết sao để hấp dẫn người dùng. Chỉ được tạo tiêu đề và viết mô tả, không thêm hướng dẫn hay gì hết cho người dùng:
+                    chỉnh sửa khác với thông tin được đưa ra. 
+                    - Phần mô tả dựa vào thông tin đã cho viết sao để hấp dẫn người dùng, nhớ chỉ để 3 số đầu số điện thoại, các số còn lại chuyển thành * để bảo mật 
+                    - Dựa vào vị trí địa chỉ để viết thêm trong phần mô tả các khu vực dịch vụ, tiện ích xung quanh vị trí đó.
+                    - Phần tiêu đề dựa vào loại tin đăng phải ghi rõ là mua hay bán.
+                    - Các mục trong mô mả có thể chia thành nhiều phần và xuống dòng 1 cách hợp lý.
+                    - Chỉ được tạo tiêu đề và viết mô tả, không thêm hướng dẫn hay gì hết cho người dùng:
 
                     Loại tin: ${postData.postType}
                     Loại bất động sản: ${postData.houseType}
@@ -22,7 +27,6 @@ class ChatGPTController {
                     Giá: ${postData.price || ''} VND
                     Người liên hệ: ${postData.userName || ''}
                     SDT: ${postData.phoneNumber || ''}
-                    Email: ${postData.email || ''}
                     Số phòng: ${features.room || ''}
                     Số nhà vệ sinh: ${features.bathroom || ''}
                     Các tiện nghi: ${

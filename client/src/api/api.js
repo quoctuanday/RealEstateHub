@@ -88,6 +88,10 @@ export const updateCheckout = (query, data) =>
 
 //Post
 export const createPost = (data) => api.post('/posts/create', { data });
+export const updatePost = (data, id) =>
+    api.put(`/posts/update/${id}`, { data });
+export const getPost = (data = {}) =>
+    api.get('/posts/getPost', { params: data });
 
 //Map
 export const getProvince = () => api_map.get('/p/');

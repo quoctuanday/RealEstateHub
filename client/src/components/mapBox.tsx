@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { useState, useEffect, useRef } from 'react';
 import { getMapBox } from '@/api/places/goong';
 
@@ -56,7 +57,6 @@ const GoongMap = ({ address, setLocation }: MapComponentProps) => {
 
     useEffect(() => {
         if (typeof window !== 'undefined' && center && !mapLoaded) {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const goongjs = require('@goongmaps/goong-js');
             goongjs.accessToken = process.env.NEXT_PUBLIC_MAP_BOX_API;
 

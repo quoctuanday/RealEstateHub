@@ -107,7 +107,7 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                 onClick={() => setFormAddress(false)}
             ></div>
             <div
-                className="relative children w-[52rem] max-h-[40rem] overflow-y-auto overflow-hidden min-h-[16rem] bg-white rounded-[10px] shadow-custom-light p-[1rem]
+                className="relative appear w-[52rem] max-h-[40rem] overflow-y-auto overflow-hidden min-h-[16rem] bg-white rounded-[10px] shadow-custom-light p-[1rem]
           [&::-webkit-scrollbar]:w-2
           [&::-webkit-scrollbar-track]:rounded-[10px]
           [&::-webkit-scrollbar-track]:bg-gray-100

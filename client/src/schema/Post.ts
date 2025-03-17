@@ -27,7 +27,7 @@ export type Post = {
     houseType: string;
     rate: number;
     feedBack?: string;
-    isAvailable: boolean;
+    status: string;
     createdAt?: string;
     updatedAt?: string;
 };

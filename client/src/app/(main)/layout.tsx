@@ -102,7 +102,7 @@ export default function MainLayout({
                             <i className="ml-1 text-[20px]">
                                 <IoIosArrowDown />
                             </i>
-                            <div className="absolute children hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
+                            <div className="absolute children appear hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
                                 <ul>
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <Link

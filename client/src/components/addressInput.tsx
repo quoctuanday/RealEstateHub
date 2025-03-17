@@ -64,8 +64,9 @@ const MyAddressInput: React.FC<MyAddressInputProps> = ({
 
     const handleSuggestionClick = async (suggestion: Suggestion) => {
         try {
-            const nameAdress =
-                suggestion.structured_formatting?.secondary_text ?? '';
+            const nameAdress = suggestion?.structured_formatting
+                ? `${suggestion.structured_formatting.main_text} - ${suggestion.structured_formatting.secondary_text}`
+                : '';
 
             setLocation((prev) => ({
                 ...prev,

@@ -6,6 +6,9 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema(
     {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        userName: { type: String },
+        email: { type: String, required: true },
+        phoneNumber: { type: String, require: true },
         title: { type: String, required: true },
         description: { type: String, required: true },
         location: {
@@ -24,7 +27,11 @@ const PostSchema = new Schema(
         images: { type: [String], required: true },
         urlSaveImages: { type: String },
         price: { type: Number, required: true },
-        isAvailable: { type: Boolean, required: true, default: false },
+        status: {
+            type: String,
+            enum: ['pending', 'active', 'archived', 'deleted'],
+            default: 'pending',
+        },
         isCheckout: { type: Boolean, required: true, default: false },
         rate: { type: Number, default: 0 },
         feedBack: { type: String },
