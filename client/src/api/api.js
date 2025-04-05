@@ -72,6 +72,8 @@ api.interceptors.response.use(
 export const login = (data) =>
     api.post('/users/login', { data }, { withCredentials: true });
 export const getUser = () => api.get('/users/getUser');
+export const getAllUser = (data = {}) =>
+    api.get('/users/getAllUser', { params: data });
 export const logout = () => api.get('/users/logout', { withCredentials: true });
 export const changePassword = (data) =>
     api.put('/users/changePassword', { data });
@@ -80,6 +82,7 @@ export const createUser = (data) =>
         data,
     });
 export const updateUser = (data) => api.put('/users/updateOne', { data });
+export const updateUsers = (data) => api.put('/users/updateMany', { data });
 
 //Payment
 export const checkOut = (data) => api.post('/payment/vnpay/create', { data });
@@ -100,3 +103,14 @@ export const getDistrict = (code) => api_map.get(`/p/${code}?depth=3`);
 //ChatGPT
 export const generateTitle = (data) =>
     api.post('/chatGPT/generateTitle', { data });
+
+//Notifications
+export const getNotify = () => api.get('/notification/get');
+export const updateNotify = (id, data) =>
+    api.put(`/notification/update/${id}`, { data });
+
+//Category
+export const createCategory = (data) => api.post('/category/create', { data });
+export const updateCategory = (id, data) =>
+    api.put(`/category/update/${id}`, { data });
+export const getCategory = () => api.get('/category/get');

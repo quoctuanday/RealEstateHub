@@ -171,5 +171,56 @@ class UserController {
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
+
+    getAllUsers(req, res) {
+        const { search, startDate, endDate, role, isBlocked, page, pageSize } =
+            req.query;
+        const filter = {
+            ...(search && { userName: { $regex: search, $options: 'i' } }),
+            ...(startDate &&
+                endDate && {
+                    createdAt: {
+                        $gte: new Date(startDate),
+                        $lte: new Date(endDate),
+                    },
+                }),
+            ...(role && { role: role }),
+            ...(isBlocked !== undefined && { isBlocked: isBlocked === 'true' }),
+        };
+
+        const currentPage = Number(page) || 1;
+        const limit = Number(pageSize) || 10;
+        const skip = (currentPage - 1) * limit;
+
+        Promise.all([
+            User.countDocuments(filter),
+            User.find(filter).skip(skip).limit(limit),
+        ])
+            .then(([totalPosts, users]) => {
+                res.json({ data: users, totalPosts });
+            })
+            .catch((error) => {
+                res.status(500).json({
+                    message: 'Internal Server Error',
+                    error,
+                });
+            });
+    }
+
+    updateMany(req, res) {
+        const data = req.body.data;
+        console.log(data);
+        const userId = data.userId;
+        User.findByIdAndUpdate(userId, data)
+            .then((user) => {
+                if (!user) {
+                    res.status(404).json({ message: 'User not found' });
+                }
+                res.status(200).json({ message: 'User successfully updated' });
+            })
+            .catch((error) => {
+                res.status(500).json({ message: 'Internal Server Error' });
+            });
+    }
 }
 module.exports = new UserController();

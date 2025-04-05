@@ -46,28 +46,32 @@
 }
 
 @layer components {
-    .bubble {
-        position: absolute;
-        min-width: 150px;
-        right: -15px;
-        top: 40px;
-        display: inline-block;
-        border: 1px solid;
-        border-radius: 30px;
-        background: #fff;
+    /* Nav */
+    .nav-link {
+        position: relative;
+        padding-bottom: 4px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease-in-out;
     }
 
-    .bubble::after {
+    .nav-link::after {
         content: '';
         position: absolute;
-        top: -20%;
-        z-index: -10;
-        right: 15%;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto;
+        height: 2px;
         width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 10px solid #4b86d2;
+        background-color: #386cb2;
+        transition: width 0.4s ease;
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
     }
 }
 

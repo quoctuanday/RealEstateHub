@@ -22,8 +22,8 @@ function FilterPost({ className, setPosts }: Props) {
         const query = {
             startDate: dateRange ? dateRange[0].toISOString() : undefined,
             endDate: dateRange ? dateRange[1].toISOString() : undefined,
-            status,
-            postType,
+            ...(status && { status }),
+            ...(postType && { postType }),
         };
         const response = await getPost(query);
         if (response) {
@@ -61,6 +61,9 @@ function FilterPost({ className, setPosts }: Props) {
                         }
                     >
                         <Select.Option value="pending">Chờ xử lí</Select.Option>
+                        <Select.Option value="decline">
+                            Bị từ chối
+                        </Select.Option>
                         <Select.Option value="active">
                             Đang hoạt động
                         </Select.Option>

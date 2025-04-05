@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { CgProfile } from 'react-icons/cg';
 import { CiLock, CiViewList } from 'react-icons/ci';
-import { FaBell, FaHeart } from 'react-icons/fa';
+import { FaRegBell, FaRegHeart } from 'react-icons/fa';
 import { GoPerson } from 'react-icons/go';
 import { IoIosArrowDown, IoIosLogOut } from 'react-icons/io';
 import { IoPieChartOutline } from 'react-icons/io5';
@@ -66,23 +66,39 @@ export default function MainLayout({
 
     return (
         <>
-            <div className="px-[30px] h-[90px] flex items-center justify-between">
-                <i className="overflow-hidden h-full">
-                    <Image
-                        src="/images/logo.png"
-                        alt="logo"
-                        width={200}
-                        height={200}
-                        className="w-[90px] h-[90px] scale-125"
-                    ></Image>
-                </i>
+            <div className="px-[30px] py-3 h-[90px] flex items-center justify-between">
+                <div className="flex items-center">
+                    <Link href="/home" className="overflow-hidden h-full">
+                        <Image
+                            src="/images/logo.png"
+                            alt="logo"
+                            width={200}
+                            height={200}
+                            className="w-[90px] h-[90px] scale-125"
+                        />
+                    </Link>
+
+                    <Link href="#" className="nav-link ml-6">
+                        Mua bán
+                    </Link>
+                    <Link href="#" className="nav-link ml-3">
+                        Cho thuê
+                    </Link>
+                    <Link href="#" className="nav-link ml-3">
+                        Tin tức
+                    </Link>
+                    <Link href="#" className="nav-link ml-3">
+                        Văn bản pháp luật
+                    </Link>
+                </div>
+
                 {userLoginData ? (
                     <div className="flex items-center relative">
-                        <i className="text-[#918725] cursor-pointer">
-                            <FaBell />
+                        <i className="cursor-pointer">
+                            <FaRegBell />
                         </i>
-                        <i className="ml-3 text-[#f64747] cursor-pointer">
-                            <FaHeart />
+                        <i className="ml-3 cursor-pointer">
+                            <FaRegHeart />
                         </i>
                         <div className="flex items-center relative parent ml-5">
                             <Image
@@ -102,7 +118,7 @@ export default function MainLayout({
                             <i className="ml-1 text-[20px]">
                                 <IoIosArrowDown />
                             </i>
-                            <div className="absolute children appear hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
+                            <div className="absolute bg-white children appear hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
                                 <ul>
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <Link
@@ -187,7 +203,15 @@ export default function MainLayout({
                                 </ul>
                             </div>
                         </div>
-                        <Button className="ml-2">Đăng tin</Button>
+                        <Button
+                            className="ml-2"
+                            htmlType="button"
+                            onClick={() => {
+                                router.push('/post');
+                            }}
+                        >
+                            Đăng tin
+                        </Button>
                     </div>
                 ) : (
                     <i className="text-[25px]">

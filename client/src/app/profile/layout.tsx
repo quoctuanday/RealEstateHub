@@ -40,7 +40,7 @@ export default function ProfileLayout({
     return (
         <div className="">
             <div className="fixed top-0 left-0 bottom-0 w-[100px] shadow-custom-medium flex flex-col justify-start items-center">
-                <i className="overflow-hidden mt-[1rem]">
+                <Link href={'/home'} className="overflow-hidden mt-[1rem]">
                     <Image
                         src="/images/logo.png"
                         alt="logo"
@@ -48,7 +48,7 @@ export default function ProfileLayout({
                         height={200}
                         className="w-[70px] h-[70px] scale-125"
                     ></Image>
-                </i>
+                </Link>
                 <ul>
                     <li className="px-2 text-center py-2 hover:bg-hoverColor cursor-pointer">
                         <Link
@@ -108,7 +108,7 @@ export default function ProfileLayout({
                     {userLoginData?.role === 'admin' && (
                         <li className="px-2 text-center py-2 hover:bg-hoverColor cursor-pointer border-b">
                             <Link
-                                href={'/profile/recharge'}
+                                href={'/admin/manageUsers'}
                                 className="flex flex-col items-center hover:text-rootColor "
                             >
                                 <i className="text-[1.25rem] roboto-bold">

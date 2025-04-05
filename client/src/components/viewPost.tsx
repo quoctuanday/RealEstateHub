@@ -1,3 +1,5 @@
+'use client';
+import { updatePost } from '@/api/api';
 import ImagesCarosel from '@/components/imagesCarosel';
 import MapView from '@/components/map';
 import { Post } from '@/schema/Post';
@@ -5,15 +7,29 @@ import dateConvert from '@/utils/convertDate';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
 import { Button } from 'antd';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaPhoneVolume } from 'react-icons/fa';
 import { IoIosPricetags } from 'react-icons/io';
 
 interface Props {
     post: Post | null;
+    isAdmin: boolean;
+    setForm: React.Dispatch<React.SetStateAction<boolean>>;
+}
+interface UpdatePostData {
+    status: string;
+    message: string;
+    feedBack?: string;
 }
 
-function ViewPost({ post }: Props) {
+function ViewPost({ post, isAdmin, setForm }: Props) {
+    const [feedback, setFeedback] = useState('');
+
+    useEffect(() => {
+        setFeedback(post?.feedBack || '');
+    }, [post]);
+
     const features = [
         {
             icon: <IoIosPricetags />,
@@ -91,6 +107,28 @@ function ViewPost({ post }: Props) {
         },
     ];
 
+    const handleUpdate = async (isApprove: boolean) => {
+        const data: UpdatePostData = {
+            status: '',
+            message: '',
+        };
+        if (isApprove) {
+            data.status = 'active';
+            data.message = `Bài viết \"${post?.title}\" đã được duyệt.`;
+        } else {
+            data.status = 'decline';
+            data.message = `Bài viết \"${post?.title}\" đã bị từ chối.`;
+            data.feedBack = feedback;
+        }
+        const response = await updatePost(data, post?._id);
+        if (response) {
+            toast.success(
+                isApprove ? 'Bài viết đã  duyệt' : 'Bài viết đã từ chối'
+            );
+            setForm(false);
+        }
+    };
+
     return (
         <div className="mt-[1.25rem] text-[1rem] relative">
             <div className="p-[1rem]">
@@ -114,7 +152,9 @@ function ViewPost({ post }: Props) {
                 </div>
                 <div className="mt-4">
                     <h2 className="roboto-bold text-xl">Thông tin mô tả</h2>
-                    <p className="mt-2">{post?.description}</p>
+                    <p className="mt-2 whitespace-pre-line">
+                        {post?.description}
+                    </p>
                 </div>
                 <div className="mt-4">
                     <h2 className="roboto-bold text-xl">
@@ -174,21 +214,53 @@ function ViewPost({ post }: Props) {
                         </div>
                     </div>
                 </div>
+                {isAdmin && (
+                    <div className="mt-4">
+                        <h2 className="roboto-bold text-xl">Phản hồi</h2>
+                        <textarea
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                            className="border rounded w-full min-h-[10rem] mt-2 border-black outline-none px-1"
+                        ></textarea>
+                    </div>
+                )}
                 <div className="w-full h-[5rem]"></div>
             </div>
             <div className="sticky bottom-0 h-[5rem] flex items-center justify-center bg-white">
-                <Button
-                    variant="solid"
-                    color="blue"
-                    className="text-[1.25rem] px-5"
-                >
-                    <i>
-                        <FaPhoneVolume />
-                    </i>
-                    <span>
-                        {maskPhoneNumber(post?.phoneNumber)} Bấm để hiện số
-                    </span>
-                </Button>
+                {isAdmin ? (
+                    <div className="flex items-center">
+                        <Button
+                            variant="solid"
+                            color="danger"
+                            disabled={!feedback.trim()}
+                            onClick={() => handleUpdate(false)}
+                        >
+                            Từ chối
+                        </Button>
+                        <Button
+                            variant="solid"
+                            className="ml-3"
+                            color="blue"
+                            onClick={() => handleUpdate(true)}
+                            disabled={post?.status === 'active'}
+                        >
+                            Đồng ý
+                        </Button>
+                    </div>
+                ) : (
+                    <Button
+                        variant="solid"
+                        color="blue"
+                        className="text-[1.25rem] px-5"
+                    >
+                        <i>
+                            <FaPhoneVolume />
+                        </i>
+                        <span>
+                            {maskPhoneNumber(post?.phoneNumber)} Bấm để hiện số
+                        </span>
+                    </Button>
+                )}
             </div>
         </div>
     );

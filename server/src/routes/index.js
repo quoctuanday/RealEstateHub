@@ -3,8 +3,12 @@ const googleRouter = require('./authGoogle');
 const paymentRouter = require('./payment');
 const postRouter = require('./post');
 const chatGPTRouter = require('./chatGPT');
+const notificationRouter = require('./notification');
+const categoryRouter = require('./category');
 
 function route(app) {
+    app.use('/api/category', categoryRouter);
+    app.use('/api/notification', notificationRouter);
     app.use('/api/chatGPT', chatGPTRouter);
     app.use('/api/posts', postRouter);
     app.use('/api/payment', paymentRouter);

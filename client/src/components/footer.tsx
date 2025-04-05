@@ -83,7 +83,7 @@ function FooterPage() {
                                 href="/rooms"
                                 className="hover:text-blue-400 transition-colors"
                             >
-                                Bất động sản đăng bán
+                                Đăng bán
                             </Link>
                         </li>
                         <li>
@@ -91,7 +91,7 @@ function FooterPage() {
                                 href="/roommates"
                                 className="hover:text-blue-400 transition-colors"
                             >
-                                Bất động sản cho thuê
+                                Cho thuê
                             </Link>
                         </li>
                         <li>
@@ -100,6 +100,14 @@ function FooterPage() {
                                 className="hover:text-blue-400 transition-colors"
                             >
                                 Tin tức
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/news"
+                                className="hover:text-blue-400 transition-colors"
+                            >
+                                Văn bản pháp luật
                             </Link>
                         </li>
                     </ul>

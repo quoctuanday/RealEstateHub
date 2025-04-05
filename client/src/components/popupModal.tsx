@@ -8,9 +8,10 @@ import { IoCloseOutline } from 'react-icons/io5';
 interface Props {
     setForm: React.Dispatch<React.SetStateAction<boolean>>;
     post: Post | null;
+    isAdmin: boolean;
 }
 
-function PopupModal({ setForm, post }: Props) {
+function PopupModal({ setForm, post, isAdmin }: Props) {
     return (
         <div className="fixed flex items-center justify-center top-0 bottom-0 left-0 right-0 z-30 roboto-regular text-[1rem]">
             <div
@@ -34,7 +35,7 @@ function PopupModal({ setForm, post }: Props) {
                         onClick={() => setForm(false)}
                     />
                 </div>
-                <ViewPost post={post} />
+                <ViewPost post={post} isAdmin={isAdmin} setForm={setForm} />
             </div>
         </div>
     );

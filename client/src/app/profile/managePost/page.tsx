@@ -3,7 +3,7 @@ import { getPost, updatePost } from '@/api/api';
 import { Post } from '@/schema/Post';
 import { Button, Input, Popconfirm } from 'antd';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import dateConvert from '@/utils/convertDate';
 import Image from 'next/image';
 import { FaImages } from 'react-icons/fa';
@@ -14,15 +14,15 @@ import FilterPost from '@/components/filterPost';
 import PopupModal from '@/components/popupModal';
 import PaginationComponent from '@/components/pagination';
 import toast from 'react-hot-toast';
-import { useUser } from '@/store/store';
 
 function ManagePostpage() {
     const router = useRouter();
-    const { socket } = useUser();
     const { Search } = Input;
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [chosenPost, setChosenPost] = useState<Post | null>(null);
     const [popupModal, setPopupModal] = useState(false);
+    const extraQuery = useMemo(() => ({ person: true }), []);
+
     const handleSearch = async (value: string) => {
         console.log(value);
         const response = await getPost({ search: value });
@@ -31,22 +31,6 @@ function ManagePostpage() {
             setPosts(data);
         }
     };
-
-    useEffect(() => {
-        const getData = async () => {
-            const response = await getPost({ person: true });
-            if (response) {
-                const data = response.data;
-                setPosts(data);
-            }
-        };
-        getData();
-        if (socket) {
-            socket.on('post-update', () => {
-                getData();
-            });
-        }
-    }, [socket]);
 
     const handleCheckout = async (postId: string) => {
         console.log(postId);
@@ -79,7 +63,11 @@ function ManagePostpage() {
                 </Button>
             </div>
             {popupModal && (
-                <PopupModal post={chosenPost} setForm={setPopupModal} />
+                <PopupModal
+                    post={chosenPost}
+                    setForm={setPopupModal}
+                    isAdmin={false}
+                />
             )}
             <Search className="mt-2" onSearch={handleSearch} />
             <FilterPost className="" setPosts={setPosts} />
@@ -135,7 +123,9 @@ function ManagePostpage() {
                                         {post.status === 'pending' &&
                                             'Chờ xử lí'}
                                         {post.status === 'active' &&
-                                            'Đang hoạt động'}
+                                            'Đang hoạt động'}{' '}
+                                        {post.status === 'decline' &&
+                                            'Bị từ chối'}
                                         {post.status === 'archived' &&
                                             'Đang lưu trữ'}
                                         {post.status === 'deleted' && 'Đã xóa'}
@@ -228,7 +218,10 @@ function ManagePostpage() {
                 )}
             </div>
             <div className="flex w-full justify-center items-center py-5">
-                <PaginationComponent person={true} setPosts={setPosts} />
+                <PaginationComponent
+                    setPosts={setPosts}
+                    extraQuery={extraQuery}
+                />
             </div>
         </div>
     );

@@ -29,13 +29,15 @@ const PostSchema = new Schema(
         price: { type: Number, required: true },
         status: {
             type: String,
-            enum: ['pending', 'active', 'archived', 'deleted'],
+            enum: ['pending', 'active', 'decline', 'archived', 'deleted'],
             default: 'pending',
         },
         isCheckout: { type: Boolean, required: true, default: false },
         rate: { type: Number, default: 0 },
         feedBack: { type: String },
         postType: { type: String, enum: ['sell', 'rent'], required: true },
+        expiredAt: { type: Date },
+        duration: { type: Number },
         houseType: {
             type: String,
             required: true,
