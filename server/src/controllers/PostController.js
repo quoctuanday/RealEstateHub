@@ -167,9 +167,10 @@ class PostController {
 
             if (data.isCheckout) {
                 try {
+                    const amountToDeduct = (post.duration || 1) * 1000;
                     const updatedUser = await User.findByIdAndUpdate(
                         post.userId,
-                        { $inc: { accountBalance: -10000 } },
+                        { $inc: { accountBalance: -amountToDeduct } },
                         { new: true }
                     );
                     return res.status(200).json({

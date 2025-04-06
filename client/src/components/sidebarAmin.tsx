@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaRegNewspaper } from 'react-icons/fa';
 import {
     LuAlignEndHorizontal,
     LuBookUser,
@@ -82,6 +83,18 @@ function SidebarAdmin() {
                         <LuFile className="pr-1" />
                         Quản lí bài đăng
                     </Link>
+                    <Link
+                        href={'/admin/news'}
+                        className={`${
+                            active == '/admin/news' && 'text-rootColor'
+                        } hover:text-rootColor mt-2 cursor-pointer flex items-center`}
+                        onClick={() => {
+                            handleClickPath('/admin/news');
+                        }}
+                    >
+                        <FaRegNewspaper className="pr-1" />
+                        Quản lí tin tức
+                    </Link>
 
                     <Link
                         href={'/admin/manageCate'}
@@ -96,12 +109,12 @@ function SidebarAdmin() {
                         Quản lí danh mục
                     </Link>
                     <Link
-                        href={'/admin'}
+                        href={'/admin/statitical'}
                         className={`${
-                            active == '/admin' && 'text-rootColor'
+                            active == '/admin/statitical' && 'text-rootColor'
                         } hover:text-rootColor mt-2 cursor-pointer flex items-center`}
                         onClick={() => {
-                            handleClickPath('/admin');
+                            handleClickPath('/admin/statitical');
                         }}
                     >
                         <LuAlignEndHorizontal className="pr-1" />

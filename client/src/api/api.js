@@ -114,3 +114,18 @@ export const createCategory = (data) => api.post('/category/create', { data });
 export const updateCategory = (id, data) =>
     api.put(`/category/update/${id}`, { data });
 export const getCategory = () => api.get('/category/get');
+
+//Statitic
+export const getCount = (start, end) =>
+    api.get(`/admin/getCount?start=${start}&end=${end}`);
+export const getRevenue = (start, end) =>
+    api.get(`/admin/getRevenue?start=${start}&end=${end}`);
+
+//News personal
+export const createNews = (data) => api.post('/news/createNews', { data });
+export const updateNews = (id, data) =>
+    api.put(`/news/updateNews/${id}`, { data });
+export const forceDeletedNews = (newsId) =>
+    api.delete(`/news/forceDelete/${newsId}`);
+export const getAllNews = (data = {}) =>
+    api.get('/news/getAllNews', { params: data });

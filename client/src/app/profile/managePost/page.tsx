@@ -193,7 +193,9 @@ function ManagePostpage() {
                                         <Popconfirm
                                             placement="top"
                                             title="Thanh toán cho bài đăng"
-                                            description="Bạn có đồng ý thanh toán cho bài đăng với giá 10.000 đồng?"
+                                            description={`Bạn có đồng ý thanh toán cho bài đăng với giá ${(
+                                                post.duration * 1000
+                                            ).toLocaleString('vi-VN')} đồng?`}
                                             okText="Có"
                                             cancelText="Không"
                                             disabled={post.isCheckout}

@@ -23,6 +23,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     userLoginData,
 }) => {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const files = fileList
         .map((file) => file.originFileObj)
@@ -36,6 +37,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             toast.error('Vui lòng chọn ít nhất 4 ảnh!');
             return;
         }
+        setIsLoading(true);
         const randomFolderName = uuidv4();
         const folderPath = `realEstateHub/${userLoginData?.userName}/post/${randomFolderName}`;
 
@@ -62,6 +64,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             );
 
             setImages({ images: successfulUploads, urlSaveImages: folderPath });
+            setIsLoading(false);
+
             toast.success('Tải ảnh lên thành công!');
             console.log('Folder path:', folderPath);
             console.log('Uploaded image URLs:', successfulUploads);
@@ -90,6 +94,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 )}
             </Upload>
             <Button
+                loading={isLoading}
                 type="primary"
                 className="mt-2"
                 htmlType="button"

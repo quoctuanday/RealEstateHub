@@ -19,6 +19,8 @@ export type Post = {
         room: number;
         convenients: string[];
     };
+    duration: number;
+    expiredAt?: string;
     isCheckout?: boolean;
     urlSaveImages: string;
     price: number;

@@ -18,7 +18,6 @@ import GoongMap from '@/components/mapBox';
 import { useUser } from '@/store/store';
 import { FaRobot } from 'react-icons/fa';
 import { createPost, generateTitle, getCategory } from '@/api/api';
-import ThinkingDots from '@/components/thinkingDot';
 import ImageUpload from '@/components/uploadImages';
 import toast from 'react-hot-toast';
 import { Category } from '@/schema/Category';
@@ -449,11 +448,12 @@ function PostPage() {
                     <Button
                         className=""
                         htmlType="button"
+                        loading={isThinking}
                         icon={<FaRobot />}
                         onClick={() => handleGenerateAI()}
                     >
                         {' '}
-                        Sử dụng AI để viết {isThinking && <ThinkingDots />}
+                        Sử dụng AI để viết
                     </Button>
                     <Form.Item
                         className="mt-2"

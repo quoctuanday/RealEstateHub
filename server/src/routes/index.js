@@ -5,8 +5,12 @@ const postRouter = require('./post');
 const chatGPTRouter = require('./chatGPT');
 const notificationRouter = require('./notification');
 const categoryRouter = require('./category');
+const adminRouter = require('./adminRouter');
+const newsRouter = require('./newsRouter');
 
 function route(app) {
+    app.use('/api/news', newsRouter);
+    app.use('/api/admin', adminRouter);
     app.use('/api/category', categoryRouter);
     app.use('/api/notification', notificationRouter);
     app.use('/api/chatGPT', chatGPTRouter);

@@ -3,6 +3,7 @@ const { Server } = require('socket.io');
 const userSocket = require('./UserSocket');
 const postSocket = require('./PostSocket');
 const cateSocket = require('./CateSocket');
+const newsSocket = require('./NewsSocket');
 
 function configureWebSocket(server) {
     const io = new Server(server, {
@@ -18,6 +19,7 @@ function configureWebSocket(server) {
     userSocket(io);
     postSocket(io);
     cateSocket(io);
+    newsSocket(io);
 
     io.on('connection', (socket) => {
         console.log('A user connected');
