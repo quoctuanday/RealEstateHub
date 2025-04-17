@@ -1,16 +1,18 @@
 'use client';
 import { getUser, logout } from '@/api/api';
+import FooterPage from '@/components/footer';
 import { useUser } from '@/store/store';
 import { Button } from 'antd';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { CgProfile } from 'react-icons/cg';
 import { CiLock, CiViewList } from 'react-icons/ci';
 import { FaRegBell, FaRegHeart } from 'react-icons/fa';
 import { GoPerson } from 'react-icons/go';
+import { GrUserAdmin } from 'react-icons/gr';
 import { IoIosArrowDown, IoIosLogOut } from 'react-icons/io';
 import { IoPieChartOutline } from 'react-icons/io5';
 import { LuHandCoins } from 'react-icons/lu';
@@ -21,7 +23,14 @@ export default function MainLayout({
     children: React.ReactNode;
 }>) {
     const { userLoginData, setUserLoginData } = useUser();
+    const pathName = usePathname();
+    const [active, setActive] = useState(pathName);
     const router = useRouter();
+
+    const handleClickPath = (path: string) => {
+        setActive(path);
+    };
+
     const handleLogOut = () => {
         const logOut = async () => {
             try {
@@ -66,7 +75,7 @@ export default function MainLayout({
 
     return (
         <>
-            <div className="px-[30px] py-3 h-[90px] flex items-center justify-between">
+            <div className="px-[30px] py-3 h-[90px] flex items-center justify-between shadow-custom-light">
                 <div className="flex items-center">
                     <Link href="/home" className="overflow-hidden h-full">
                         <Image
@@ -77,17 +86,46 @@ export default function MainLayout({
                             className="w-[90px] h-[90px] scale-125"
                         />
                     </Link>
-
-                    <Link href="#" className="nav-link ml-6">
+                    <Link
+                        href={'/sell'}
+                        className={`${
+                            active == '/sell' && 'active'
+                        } nav-link ml-6`}
+                        onClick={() => {
+                            handleClickPath('/sell');
+                        }}
+                    >
                         Mua bán
                     </Link>
-                    <Link href="#" className="nav-link ml-3">
+                    <Link
+                        href={'/rent'}
+                        className={`${
+                            active == '/rent' && 'active'
+                        } nav-link ml-6`}
+                        onClick={() => {
+                            handleClickPath('/rent');
+                        }}
+                    >
                         Cho thuê
                     </Link>
-                    <Link href="#" className="nav-link ml-3">
+                    <Link
+                        href={'/news'}
+                        className={`${
+                            active == '/news' && 'active'
+                        } nav-link ml-6`}
+                        onClick={() => {
+                            handleClickPath('/news');
+                        }}
+                    >
                         Tin tức
                     </Link>
-                    <Link href="#" className="nav-link ml-3">
+                    <Link
+                        href={'#'}
+                        className={`${active == '#' && 'active'} nav-link ml-6`}
+                        onClick={() => {
+                            handleClickPath('#');
+                        }}
+                    >
                         Văn bản pháp luật
                     </Link>
                 </div>
@@ -118,7 +156,7 @@ export default function MainLayout({
                             <i className="ml-1 text-[20px]">
                                 <IoIosArrowDown />
                             </i>
-                            <div className="absolute bg-white children appear hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
+                            <div className="absolute z-30 bg-white children appear hidden w-[300px] right-0 top-[120%] rounded border shadow-custom-light">
                                 <ul>
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <Link
@@ -174,7 +212,7 @@ export default function MainLayout({
                                             </span>
                                         </Link>
                                     </li>
-                                    <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer border-b">
+                                    <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer ">
                                         <Link
                                             href={'/profile/recharge'}
                                             className="flex items-center "
@@ -187,6 +225,21 @@ export default function MainLayout({
                                             </span>
                                         </Link>
                                     </li>
+                                    {userLoginData.role === 'admin' && (
+                                        <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer border-b">
+                                            <Link
+                                                href={'/admin/manageUsers'}
+                                                className="flex items-center "
+                                            >
+                                                <i>
+                                                    <GrUserAdmin />
+                                                </i>{' '}
+                                                <span className="ml-2">
+                                                    Admin
+                                                </span>
+                                            </Link>
+                                        </li>
+                                    )}
                                     <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer">
                                         <button
                                             onClick={() => handleLogOut()}
@@ -220,6 +273,8 @@ export default function MainLayout({
                 )}
             </div>
             <div className="">{children}</div>
+            <div className="w-full h-[10rem]"></div>
+            <FooterPage />
         </>
     );
 }

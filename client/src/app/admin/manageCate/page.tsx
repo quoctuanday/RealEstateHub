@@ -1,5 +1,5 @@
 'use client';
-import { createCategory, getCategory } from '@/api/api';
+import { createCategory, getCategory, updateCategory } from '@/api/api';
 import EditCateModel from '@/components/editCateModel';
 import { Category } from '@/schema/Category';
 import { useUser } from '@/store/store';
@@ -218,6 +218,11 @@ function ManagesCatePage() {
                                   ></Button>
                                   <Switch
                                       className="ml-3"
+                                      onClick={async () => {
+                                          await updateCategory(category._id, {
+                                              isActive: !category.isActive,
+                                          });
+                                      }}
                                       checked={category.isActive}
                                   ></Switch>
                               </div>

@@ -38,6 +38,7 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({
                     const data = response.data;
                     setPosts(data.posts);
                     setTotalPosts(data.total);
+                    console.log(data);
                 }
             } catch (error) {
                 console.error('Error fetching posts:', error);

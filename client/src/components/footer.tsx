@@ -80,7 +80,7 @@ function FooterPage() {
                         </li>
                         <li>
                             <Link
-                                href="/rooms"
+                                href="/sell"
                                 className="hover:text-blue-400 transition-colors"
                             >
                                 Đăng bán
@@ -88,7 +88,7 @@ function FooterPage() {
                         </li>
                         <li>
                             <Link
-                                href="/roommates"
+                                href="/rent"
                                 className="hover:text-blue-400 transition-colors"
                             >
                                 Cho thuê

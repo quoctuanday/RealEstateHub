@@ -2,6 +2,7 @@ export type Post = {
     _id: string;
     userId?: string;
     userName?: string;
+    userImage?: string;
     title: string;
     images: string[];
     phoneNumber: string;

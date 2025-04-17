@@ -64,6 +64,7 @@ class PostController {
                 endDate,
                 postId,
                 person,
+                postType,
                 status,
                 page,
                 limit,
@@ -77,8 +78,14 @@ class PostController {
             const isManageAdmin =
                 manageAdmin === 'true' &&
                 (userRole === 'admin' || userRole === 'moderator');
+            //update status when post is expired
+            await Post.updateMany(
+                { status: 'active', expiredAt: { $lte: new Date() } },
+                { $set: { status: 'archive' } }
+            );
 
             const baseFilter = {
+                ...(postType && { postType: postType }),
                 ...(status && { status: status }),
                 ...(postId && { _id: postId }),
                 ...(!isManageAdmin && userId && person && { userId }),
@@ -90,6 +97,9 @@ class PostController {
                             $lte: new Date(endDate),
                         },
                     }),
+                ...(status === 'active' && {
+                    expiredAt: { $gt: new Date() },
+                }),
             };
 
             if (isCount === 'true') {
@@ -139,11 +149,23 @@ class PostController {
                 const skip = (pageNumber - 1) * limitNumber;
 
                 const [posts, total] = await Promise.all([
-                    Post.find(filterQuery).skip(skip).limit(limitNumber),
+                    Post.find(filterQuery)
+                        .populate('userId', 'image')
+                        .skip(skip)
+                        .limit(limitNumber),
                     Post.countDocuments(filterQuery),
                 ]);
+                const postsWithUserData = posts.map((post) => {
+                    const postObj = post.toObject();
+                    if (postObj.userId) {
+                        postObj.userImage = postObj.userId.image;
+                    }
+                    return postObj;
+                });
 
-                return res.status(200).json({ posts, total });
+                return res
+                    .status(200)
+                    .json({ posts: postsWithUserData, total });
             }
 
             const posts = await Post.find(filterQuery);
