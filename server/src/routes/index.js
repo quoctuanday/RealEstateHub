@@ -7,8 +7,10 @@ const notificationRouter = require('./notification');
 const categoryRouter = require('./category');
 const adminRouter = require('./adminRouter');
 const newsRouter = require('./newsRouter');
+const commentRouter = require('./commentRouter');
 
 function route(app) {
+    app.use('/api/comment', commentRouter);
     app.use('/api/news', newsRouter);
     app.use('/api/admin', adminRouter);
     app.use('/api/category', categoryRouter);

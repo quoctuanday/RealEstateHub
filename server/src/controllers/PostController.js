@@ -57,6 +57,20 @@ class PostController {
     }
 
     async getPost(req, res) {
+        function normalizeProvinceName(name) {
+            return name
+                .replace(/^(Tỉnh|Thành phố)\s*/i, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function normalizeDistrictName(name) {
+            return name
+                .replace(/^(Quận|Huyện|Thị xã|Thành phố)\s*/i, '')
+                .trim()
+                .toLowerCase();
+        }
+
         try {
             const {
                 search,
@@ -65,10 +79,13 @@ class PostController {
                 postId,
                 person,
                 postType,
+                houseType,
                 status,
                 page,
                 limit,
                 isCount,
+                district,
+                province,
                 manageAdmin,
                 ...restQuery
             } = req.query;
@@ -78,6 +95,12 @@ class PostController {
             const isManageAdmin =
                 manageAdmin === 'true' &&
                 (userRole === 'admin' || userRole === 'moderator');
+            const normalizedProvince = province
+                ? normalizeProvinceName(province)
+                : '';
+            const normalizedDistrict = district
+                ? normalizeDistrictName(district)
+                : '';
             //update status when post is expired
             await Post.updateMany(
                 { status: 'active', expiredAt: { $lte: new Date() } },
@@ -86,6 +109,11 @@ class PostController {
 
             const baseFilter = {
                 ...(postType && { postType: postType }),
+                ...(houseType && {
+                    houseType: Array.isArray(houseType)
+                        ? { $in: houseType }
+                        : houseType,
+                }),
                 ...(status && { status: status }),
                 ...(postId && { _id: postId }),
                 ...(!isManageAdmin && userId && person && { userId }),
@@ -100,6 +128,15 @@ class PostController {
                 ...(status === 'active' && {
                     expiredAt: { $gt: new Date() },
                 }),
+                ...(district &&
+                    province && {
+                        'location.name': {
+                            $regex: new RegExp(
+                                `${normalizedDistrict}.*${normalizedProvince}`,
+                                'i'
+                            ),
+                        },
+                    }),
             };
 
             if (isCount === 'true') {
@@ -168,8 +205,18 @@ class PostController {
                     .json({ posts: postsWithUserData, total });
             }
 
-            const posts = await Post.find(filterQuery);
-            res.status(200).json(posts);
+            const posts = await Post.find(filterQuery).populate(
+                'userId',
+                'image'
+            );
+            const postsWithUserData = posts.map((post) => {
+                const postObj = post.toObject();
+                if (postObj.userId) {
+                    postObj.userImage = postObj.userId.image;
+                }
+                return postObj;
+            });
+            res.status(200).json(postsWithUserData);
         } catch (error) {
             console.error('getPost error:', error);
             res.status(500).json({ message: 'Internal Server Error', error });

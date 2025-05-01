@@ -129,3 +129,9 @@ export const forceDeletedNews = (newsId) =>
     api.delete(`/news/forceDelete/${newsId}`);
 export const getAllNews = (data = {}) =>
     api.get('/news/getAllNews', { params: data });
+
+//Comment
+export const createComment = (data) => api.post('/comment/create', { data });
+export const getComment = (id) => api.get(`/comment/get/${id}`);
+export const deleteComment = (id) => api.delete(`/comment/delete/${id}`);
+export const blockComment = (id) => api.put(`/comment/block/${id}`);

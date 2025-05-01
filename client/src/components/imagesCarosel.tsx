@@ -25,11 +25,11 @@ function ImagesCarosel({ images }: Props) {
         <div>
             {images.length > 0 ? (
                 <div>
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 h-[40rem] w-full  overflow-hidden bg-black flex items-center justify-center">
                         <Image
                             src={images[currentIndex]}
                             alt={`Ảnh lớn`}
-                            className="w-full h-[44rem] object-cover"
+                            className="max-w-full max-h-full object-contain"
                             width={800}
                             height={500}
                         />

@@ -1,23 +1,34 @@
 'use client';
 import PaginationComponent from '@/components/pagination';
 import { Post } from '@/schema/Post';
-import { Button, Dropdown, Input, Menu, message, Spin, Tooltip } from 'antd';
+import { Button, message, Spin, Tooltip } from 'antd';
 import Image from 'next/image';
 import React, { useEffect, useMemo, useState } from 'react';
 import formatTimeDifference from '@/utils/format-time';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
-import { FaImage, FaPhone, FaRegHeart } from 'react-icons/fa';
+import {
+    FaImage,
+    FaPhone,
+    FaRegHeart,
+    FaRegStar,
+    FaStar,
+    FaStarHalfAlt,
+} from 'react-icons/fa';
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
 import formatMoneyShort from '@/utils/formatMoney';
 import { getCategory } from '@/api/api';
 import { Category } from '@/schema/Category';
+import FilterPostPage from '@/components/filterPostPage';
+import SearchPostPage from '@/components/searchPostPage';
+import Link from 'next/link';
 
 function SellPage() {
-    const { Search } = Input;
     const { userLoginData } = useUser();
     const [posts, setPosts] = useState<Post[] | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<Category[] | null>(null);
+    const [selectedChildCates, setSelectedChildCates] = useState<string[]>([]);
     const [isPhoneHidden, setIsPhoneHidden] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
@@ -25,20 +36,6 @@ function SellPage() {
         () => ({ status: 'active', postType: 'sell' }),
         []
     );
-
-    const houseTypes = Array.from(new Set(posts.map((post) => post.houseType)));
-
-    const menu = (
-        <Menu onClick={({ key }) => onFilter(key)}>
-            {houseTypes.map((type) => (
-                <Menu.Item key={type}>{type}</Menu.Item>
-            ))}
-        </Menu>
-    );
-
-    const handleSearch = async (value: string) => {
-        console.log(value);
-    };
 
     useEffect(() => {
         const getCate = async () => {
@@ -52,12 +49,32 @@ function SellPage() {
         getCate();
     }, []);
 
+    const toggleChildCate = (childCate: string) => {
+        console.log(currentPage);
+        setSelectedChildCates((prev) =>
+            prev.includes(childCate)
+                ? prev.filter((c) => c !== childCate)
+                : [...prev, childCate]
+        );
+    };
+
     return (
         <div className="mt-[1.25rem] px-[15rem]">
-            <Search className="" onSearch={handleSearch} />
+            <SearchPostPage
+                type="sell"
+                setIsLoading={setIsLoading}
+                setPosts={setPosts}
+                pageSize={pageSize}
+                currentPage={1}
+            />
             <div className="py-[1.25rem] flex items-center border-b">
-                <span>Lọc theo</span>
-                <Dropdown trigger={['click']}></Dropdown>
+                <FilterPostPage
+                    setIsLoading={setIsLoading}
+                    setPosts={setPosts}
+                    currentPage={1}
+                    pageSize={pageSize}
+                    type="sell"
+                />
             </div>
             <div className="grid grid-cols-8 mt-[1.25rem] gap-5 min-h-[15rem]">
                 <main className="col-span-6 ">
@@ -67,16 +84,21 @@ function SellPage() {
                     </span>
 
                     <ul className="mt-[1.25rem]">
-                        {posts && posts?.length > 0 ? (
+                        {isLoading ? (
+                            <div className="flex items-center justify-center">
+                                <Spin />
+                            </div>
+                        ) : posts && posts?.length > 0 ? (
                             <>
                                 {posts.map((post, index) => (
-                                    <li
-                                        className={`grid grid-rows-2 overflow-hidden border rounded ${
+                                    <Link
+                                        href={`/sell/${post._id}`}
+                                        className={`grid grid-rows-3 overflow-hidden border rounded ${
                                             index == 0 ? '' : 'mt-[1.25rem]'
                                         }`}
                                         key={index}
                                     >
-                                        <div className="row-span-1 grid grid-cols-3 gap-1 relative">
+                                        <div className="row-span-2 grid grid-cols-3 gap-1 relative">
                                             <Image
                                                 src={
                                                     post.images
@@ -126,7 +148,7 @@ function SellPage() {
                                                 <h2 className="roboto-bold uppercase line-clamp-2 ">
                                                     {post.title}
                                                 </h2>
-                                                <div className="mt-3 text-blue-400">
+                                                <div className="mt-3 flex items-center  text-blue-400">
                                                     <span className="">
                                                         {' '}
                                                         {formatMoneyShort(
@@ -137,6 +159,46 @@ function SellPage() {
                                                         {' '}
                                                         {post.acreage} m²
                                                     </span>
+                                                    {typeof post.rate ===
+                                                        'number' && (
+                                                        <span className="flex items-center ml-4 text-yellow-500 text-[0.9rem]">
+                                                            {[
+                                                                1, 2, 3, 4, 5,
+                                                            ].map((i) => {
+                                                                if (
+                                                                    i <=
+                                                                    Math.floor(
+                                                                        post.rate
+                                                                    )
+                                                                )
+                                                                    return (
+                                                                        <FaStar
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        />
+                                                                    );
+                                                                if (
+                                                                    i -
+                                                                        post.rate <=
+                                                                    0.5
+                                                                )
+                                                                    return (
+                                                                        <FaStarHalfAlt
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        />
+                                                                    );
+                                                                return (
+                                                                    <FaRegStar
+                                                                        key={i}
+                                                                        className="text-gray-300"
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <span className="mt-1 line-clamp-1 text-blue-400">
                                                     {post.location?.name}
@@ -208,12 +270,12 @@ function SellPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </li>
+                                    </Link>
                                 ))}
                             </>
                         ) : (
-                            <div className="flex items-center justify-center">
-                                <Spin />
+                            <div className="flex items-center justify-center text-red-400">
+                                Chưa có tin đăng nào!
                             </div>
                         )}
                     </ul>
@@ -230,14 +292,25 @@ function SellPage() {
                     {categories?.map((category, index) => (
                         <ul key={index} className={index === 0 ? '' : 'mt-3'}>
                             <h1 className="roboto-bold">{category.name}</h1>
-                            {category.childCate.map((childCate, index) => (
-                                <li
-                                    key={index}
-                                    className="py-1 text-[0.75rem] cursor-pointer hover:text-blue-400"
-                                >
-                                    {childCate}
-                                </li>
-                            ))}
+                            {category.childCate.map((childCate, index) => {
+                                const isSelected =
+                                    selectedChildCates.includes(childCate);
+                                return (
+                                    <li
+                                        key={index}
+                                        onClick={() =>
+                                            toggleChildCate(childCate)
+                                        }
+                                        className={`py-1 text-[0.75rem] cursor-pointer hover:text-blue-400 ${
+                                            isSelected
+                                                ? 'text-blue-600 font-semibold'
+                                                : ''
+                                        }`}
+                                    >
+                                        {childCate}
+                                    </li>
+                                );
+                            })}
                         </ul>
                     ))}
                 </aside>

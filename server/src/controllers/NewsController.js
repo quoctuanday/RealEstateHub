@@ -83,13 +83,21 @@ class NewsController {
     }
     async getAllNews(req, res) {
         try {
-            const { search, startDate, endDate, page, limit, ...restQuery } =
-                req.query;
+            const {
+                search,
+                startDate,
+                endDate,
+                page,
+                limit,
+                newsId,
+                ...restQuery
+            } = req.query;
 
             const filter = {
                 ...(search && {
                     title: { $regex: search, $options: 'i' },
                 }),
+                ...(newsId && { _id: newsId }),
                 ...(startDate &&
                     endDate && {
                         createdAt: {
