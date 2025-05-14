@@ -1,5 +1,6 @@
 'use client';
 import { getUser, logout } from '@/api/api';
+import DraggableChatbot from '@/components/draggableChatBot';
 import FooterPage from '@/components/footer';
 import { useUser } from '@/store/store';
 import { Button } from 'antd';
@@ -120,7 +121,7 @@ export default function MainLayout({
                         Tin tức
                     </Link>
                     <Link
-                        href={'#'}
+                        href={'/legalDocuments'}
                         className={`${active == '#' && 'active'} nav-link ml-6`}
                         onClick={() => {
                             handleClickPath('#');
@@ -272,7 +273,10 @@ export default function MainLayout({
                     </i>
                 )}
             </div>
-            <div className="">{children}</div>
+            <div className="">
+                {children}
+                <DraggableChatbot />
+            </div>
             <div className="w-full h-[10rem]"></div>
             <FooterPage />
         </>

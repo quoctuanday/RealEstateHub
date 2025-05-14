@@ -8,8 +8,12 @@ const categoryRouter = require('./category');
 const adminRouter = require('./adminRouter');
 const newsRouter = require('./newsRouter');
 const commentRouter = require('./commentRouter');
+const chatBotRouter = require('./chatBotRouter');
+const documentsRouter = require('./documentsRouter');
 
 function route(app) {
+    app.use('/api/documents', documentsRouter);
+    app.use('/api/chatBot', chatBotRouter);
     app.use('/api/comment', commentRouter);
     app.use('/api/news', newsRouter);
     app.use('/api/admin', adminRouter);

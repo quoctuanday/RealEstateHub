@@ -1,5 +1,6 @@
 'use client';
 import { getPost } from '@/api/api';
+import CommentForm from '@/components/comment';
 import ImagesCarosel from '@/components/imagesCarosel';
 import MapView from '@/components/map';
 import { Post } from '@/schema/Post';
@@ -17,6 +18,7 @@ function PostRentDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const [isPhoneHidden, setIsPhoneHidden] = useState(true);
     const { socket, userLoginData } = useUser();
     const [loading, setLoading] = useState(true);
+    console.log(loading);
     const features = [
         {
             icon: <IoIosPricetags />,
@@ -234,6 +236,8 @@ function PostRentDetailPage({ params }: { params: Promise<{ id: string }> }) {
                         </div>
                     </div>
                 </div>
+
+                <CommentForm postId={post?._id || ''} />
 
                 <div className="w-full h-[5rem]"></div>
             </div>

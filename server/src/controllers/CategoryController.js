@@ -70,10 +70,17 @@ class CategoryController {
     async update(req, res) {
         const data = req.body.data;
         const categoryId = req.params.id;
+
         try {
+            // Cập nhật tên danh mục nếu có
+            const updatePayload = {};
+            if (data.name !== undefined) updatePayload.name = data.name;
+            if (data.isActive !== undefined)
+                updatePayload.isActive = data.isActive;
+
             const updatedCategory = await Category.findByIdAndUpdate(
                 categoryId,
-                { name: data.name },
+                updatePayload,
                 { new: true }
             );
 
@@ -81,37 +88,44 @@ class CategoryController {
                 return res.status(404).json({ message: 'Category not found' });
             }
 
-            const currentChildCategories = await Category.find({
-                parentId: categoryId,
-            });
-
-            // Xóa các child category không có trong childCate
-            const childCateSet = new Set(data.childCate);
-            const childCategoryIdsToDelete = currentChildCategories
-                .filter((child) => !childCateSet.has(child.name))
-                .map((child) => child._id);
-
-            if (childCategoryIdsToDelete.length > 0) {
-                await PostCategory.deleteMany({
-                    categoryId: { $in: childCategoryIdsToDelete },
-                });
-
-                await Category.deleteMany({
-                    _id: { $in: childCategoryIdsToDelete },
-                });
-            }
-
-            for (const childCate of data.childCate) {
-                const existingChild = await Category.findOne({
-                    name: childCate,
+            // Nếu không có childCate thì bỏ qua xử lý danh mục con
+            const childCateArray = Array.isArray(data.childCate)
+                ? data.childCate
+                : null;
+            if (childCateArray) {
+                const currentChildCategories = await Category.find({
                     parentId: categoryId,
                 });
-                if (!existingChild) {
-                    const newChild = new Category({
+
+                // Xóa các child category không có trong childCate mới
+                const childCateSet = new Set(childCateArray);
+                const childCategoryIdsToDelete = currentChildCategories
+                    .filter((child) => !childCateSet.has(child.name))
+                    .map((child) => child._id);
+
+                if (childCategoryIdsToDelete.length > 0) {
+                    await PostCategory.deleteMany({
+                        categoryId: { $in: childCategoryIdsToDelete },
+                    });
+
+                    await Category.deleteMany({
+                        _id: { $in: childCategoryIdsToDelete },
+                    });
+                }
+
+                // Tạo mới các child category chưa tồn tại
+                for (const childCate of childCateArray) {
+                    const existingChild = await Category.findOne({
                         name: childCate,
                         parentId: categoryId,
                     });
-                    await newChild.save();
+                    if (!existingChild) {
+                        const newChild = new Category({
+                            name: childCate,
+                            parentId: categoryId,
+                        });
+                        await newChild.save();
+                    }
                 }
             }
 

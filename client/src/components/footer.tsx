@@ -104,7 +104,7 @@ function FooterPage() {
                         </li>
                         <li>
                             <Link
-                                href="/news"
+                                href="/legalDocuments"
                                 className="hover:text-blue-400 transition-colors"
                             >
                                 Văn bản pháp luật

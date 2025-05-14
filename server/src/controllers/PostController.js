@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const PostCategory = require('../models/PostCategory');
 const Category = require('../models/Category');
+const FavouritePost = require('../models/favouritePost');
 const { checkout } = require('../routes/user');
 class PostController {
     create(req, res) {
@@ -192,13 +193,26 @@ class PostController {
                         .limit(limitNumber),
                     Post.countDocuments(filterQuery),
                 ]);
-                const postsWithUserData = posts.map((post) => {
-                    const postObj = post.toObject();
-                    if (postObj.userId) {
-                        postObj.userImage = postObj.userId.image;
-                    }
-                    return postObj;
-                });
+                const postsWithUserData = await Promise.all(
+                    posts.map(async (post) => {
+                        const postObj = post.toObject();
+
+                        if (postObj.userId) {
+                            postObj.userImage = postObj.userId.image;
+                        }
+
+                        if (req.user.userId) {
+                            const userId = req.user.userId;
+                            const isFav = await FavouritePost.exists({
+                                userId,
+                                postId: post._id,
+                            });
+                            postObj.isFavourite = !!isFav;
+                        }
+
+                        return postObj;
+                    })
+                );
 
                 return res
                     .status(200)
@@ -298,6 +312,32 @@ class PostController {
                 message: 'Internal Server Error',
                 error,
             });
+        }
+    }
+
+    async addOrRemoveFavourite(req, res) {
+        try {
+            const data = req.body.data;
+            data.userId = req.user.userId;
+
+            const existing = await FavouritePost.findOne({
+                userId: data.userId,
+                postId: data.postId,
+            });
+
+            if (existing) {
+                await FavouritePost.deleteOne({ _id: existing._id });
+                return res.status(200).json({ message: 'Đã bỏ yêu thích' });
+            } else {
+                const newFavourite = new FavouritePost(data);
+                await newFavourite.save();
+                return res
+                    .status(201)
+                    .json({ message: 'Đã thêm vào yêu thích' });
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Lỗi máy chủ' });
         }
     }
 }

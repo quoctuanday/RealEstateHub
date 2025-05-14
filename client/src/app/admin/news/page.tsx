@@ -61,20 +61,20 @@ function ManageNewsPage() {
                 {isFilter && <div className=""></div>}
             </div>
             <div className="w-full min-h-[30rem] bg-white">
-                <div className="grid grid-cols-9">
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                <div className="grid grid-cols-9 roboto-bold">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Stt
                     </div>
-                    <div className="col-span-3 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-3 flex justify-center items-center py-1 border-[1px]">
                         Tiêu đề
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Người đăng
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Ngày đăng
                     </div>
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Thao tác
                     </div>
                 </div>
@@ -94,28 +94,28 @@ function ManageNewsPage() {
                                 className="grid grid-cols-9  h-[3.75rem]"
                                 key={news._id}
                             >
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     {index +
                                         1 +
                                         ((currentPage || 1) - 1) *
                                             (pageSize || 5)}
                                 </div>
-                                <div className="col-span-3  flex  items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-3  flex  items-center py-1 border-[1px]">
                                     <span className="truncate">
                                         {' '}
                                         {news.title}
                                     </span>
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {news.userName}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {news.createdAt
                                         ? dateConvert(news.createdAt)
                                         : ''}
                                 </div>
 
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     <Button
                                         onClick={() => {
                                             setPopupModal(true);

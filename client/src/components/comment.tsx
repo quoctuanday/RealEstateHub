@@ -33,6 +33,7 @@ const CommentForm = ({ postId }: Props) => {
 
     const fetchComments = useCallback(
         async (append = false) => {
+            if (!postId) return;
             try {
                 const res = await getComment(postId);
                 const allComments = res.data.comment.filter(
@@ -53,10 +54,10 @@ const CommentForm = ({ postId }: Props) => {
                         : paginated
                 );
             } catch (err) {
-                message.error('Không thể tải bình luận');
+                console.log('Không thể tải bình luận');
             }
         },
-        [postId, userLoginData, page, comments]
+        [postId, userLoginData, page]
     );
 
     useEffect(() => {

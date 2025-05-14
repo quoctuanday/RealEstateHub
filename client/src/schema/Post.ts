@@ -31,6 +31,7 @@ export type Post = {
     rate: number;
     feedBack?: string;
     status: string;
+    isFavourite?: boolean;
     createdAt?: string;
     updatedAt?: string;
 };

@@ -91,6 +91,7 @@ export const updateCheckout = (query, data) =>
 
 //Post
 export const createPost = (data) => api.post('/posts/create', { data });
+export const addFavourite = (data) => api.post('/posts/addFavourite', { data });
 export const updatePost = (data, id) =>
     api.put(`/posts/update/${id}`, { data });
 export const getPost = (data = {}) =>
@@ -135,3 +136,13 @@ export const createComment = (data) => api.post('/comment/create', { data });
 export const getComment = (id) => api.get(`/comment/get/${id}`);
 export const deleteComment = (id) => api.delete(`/comment/delete/${id}`);
 export const blockComment = (id) => api.put(`/comment/block/${id}`);
+
+//Chatbot
+export const chatBot = (data) => api.post('/chatBot', { data });
+
+//Legal documents
+export const createDocument = (data) => api.post('/documents/create', { data });
+export const getDocuments = (data = {}) =>
+    api.get('/documents', { params: data });
+export const deleteDocument = (documentId) =>
+    api.delete(`/documents/delete/${documentId}`);

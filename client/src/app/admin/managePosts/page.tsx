@@ -5,7 +5,7 @@ import PaginationComponent from '@/components/pagination';
 import PopupModal from '@/components/popupModal';
 import { Post } from '@/schema/Post';
 import dateConvert from '@/utils/convertDate';
-import { Button, Input } from 'antd';
+import { Button, Input, Spin } from 'antd';
 import React, { useMemo, useState } from 'react';
 
 function ManagePostsPage() {
@@ -41,26 +41,26 @@ function ManagePostsPage() {
                 {isFilter && <FilterPost className="" setPosts={setPosts} />}
             </div>
             <div className="w-full min-h-[30rem] bg-white">
-                <div className="grid grid-cols-12">
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                <div className="grid grid-cols-12 roboto-bold">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Stt
                     </div>
-                    <div className="col-span-3 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-3 flex justify-center items-center py-1 border-[1px]">
                         Tiêu đề
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Người đăng
                     </div>
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Ngày đăng
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Trạng thái
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Thanh toán
                     </div>
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Thao tác
                     </div>
                 </div>
@@ -71,34 +71,38 @@ function ManagePostsPage() {
                         isAdmin={true}
                     />
                 )}
-                {posts && posts.length > 0 ? (
+                {posts === null ? (
+                    <div className="flex items-center justify-center w-full h-[20rem]">
+                        <Spin />
+                    </div>
+                ) : posts.length > 0 ? (
                     <div className="">
                         {posts.map((post, index) => (
                             <div
                                 className="grid grid-cols-12  h-[3.75rem]"
                                 key={post._id}
                             >
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     {index +
                                         1 +
                                         ((currentPage || 1) - 1) *
                                             (pageSize || 5)}
                                 </div>
-                                <div className="col-span-3  flex  items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-3  flex  items-center py-1 border-[1px]">
                                     <span className="truncate">
                                         {' '}
                                         {post.title}
                                     </span>
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {post.userName}
                                 </div>
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     {post.createdAt
                                         ? dateConvert(post.createdAt)
                                         : ''}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {post.status === 'pending' && 'Chờ duyệt'}
                                     {post.status === 'active' &&
                                         'Đang hoạt động'}
@@ -107,12 +111,12 @@ function ManagePostsPage() {
                                         'Được lưu trữ'}
                                     {post.status === 'deleted' && 'Đã xóa'}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {post.isCheckout
                                         ? 'Đã thanh toán'
                                         : 'Chưa thanh toán'}
                                 </div>
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     <Button
                                         onClick={() => {
                                             setPopupModal(true);
@@ -127,7 +131,7 @@ function ManagePostsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className=""></div>
+                    <div className="">Chưa có bài đăng nào !</div>
                 )}
                 <div className="mt-5 flex items-center justify-center">
                     <PaginationComponent

@@ -4,9 +4,17 @@ import FilterUsers from '@/components/filterUser';
 import { User } from '@/schema/User';
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
-import { Button, Image, Input, Modal, Pagination, Rate, Spin } from 'antd';
+import {
+    Button,
+    Image,
+    Input,
+    message,
+    Modal,
+    Pagination,
+    Rate,
+    Spin,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { CiLock, CiUnlock } from 'react-icons/ci';
 
 function ManageUsersPage() {
@@ -40,7 +48,7 @@ function ManageUsersPage() {
         console.log(role, userId);
         const response = await updateUsers({ role: role, userId: userId });
         if (response) {
-            toast.success('Đã cập nhật vài trò.');
+            message.success('Đã cập nhật vài trò.');
             setPopupModal(false);
         }
     };
@@ -82,24 +90,24 @@ function ManageUsersPage() {
                 {isFilter && <FilterUsers className="" setUsers={setUsers} />}
             </div>
             <div className="w-full min-h-[30rem] bg-white">
-                <div className="grid grid-cols-11">
-                    <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                <div className="grid grid-cols-11 roboto-bold">
+                    <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                         Stt
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Tài khoản
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Ảnh đại diện
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Ngày tạo
                     </div>
 
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Vai trò
                     </div>
-                    <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                    <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                         Thao tác
                     </div>
                 </div>
@@ -111,15 +119,15 @@ function ManageUsersPage() {
                     <div className="">
                         {users.map((user, index) => (
                             <div className="grid grid-cols-11" key={user._id}>
-                                <div className="col-span-1 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     {index + 1 + (currentPage - 1) * pageSize}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     <span className="truncate">
                                         {user.userName}
                                     </span>
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     <Image
                                         src={
                                             user.image
@@ -133,18 +141,18 @@ function ManageUsersPage() {
                                         className="rounded-full"
                                     />
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {user.createdAt
                                         ? dateConvert(user.createdAt)
                                         : ''}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {user.role === 'admin' && 'Quản trị viên'}
                                     {user.role === 'moderator' &&
                                         'Kiểm duyệt viên'}
                                     {user.role === 'user' && 'Người dùng'}
                                 </div>
-                                <div className="col-span-2 flex justify-center items-center py-1 roboto-bold border-[1px]">
+                                <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     <Button
                                         onClick={() => {
                                             setPopupModal(true);

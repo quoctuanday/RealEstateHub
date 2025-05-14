@@ -6,11 +6,19 @@ import Image from 'next/image';
 import React, { useEffect, useMemo, useState } from 'react';
 import formatTimeDifference from '@/utils/format-time';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
-import { FaImage, FaPhone, FaRegHeart } from 'react-icons/fa';
+import {
+    FaHeart,
+    FaImage,
+    FaPhone,
+    FaRegHeart,
+    FaRegStar,
+    FaStar,
+    FaStarHalfAlt,
+} from 'react-icons/fa';
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
 import formatMoneyShort from '@/utils/formatMoney';
-import { getCategory } from '@/api/api';
+import { addFavourite, getCategory } from '@/api/api';
 import { Category } from '@/schema/Category';
 import FilterPostPage from '@/components/filterPostPage';
 import SearchPostPage from '@/components/searchPostPage';
@@ -84,8 +92,7 @@ function RentPage() {
                         ) : posts && posts?.length > 0 ? (
                             <>
                                 {posts.map((post, index) => (
-                                    <Link
-                                        href={`/rent/${post._id}`}
+                                    <div
                                         className={`grid grid-rows-3 overflow-hidden border rounded ${
                                             index == 0 ? '' : 'mt-[1.25rem]'
                                         }`}
@@ -137,11 +144,14 @@ function RentPage() {
                                             </div>
                                         </div>
                                         <div className="row-span-1">
-                                            <div className="p-3 border-b">
+                                            <Link
+                                                href={`/rent/${post._id}`}
+                                                className="p-3 border-b block"
+                                            >
                                                 <h2 className="roboto-bold uppercase line-clamp-2 ">
                                                     {post.title}
                                                 </h2>
-                                                <div className="mt-3 text-blue-400">
+                                                <div className="mt-3 flex items-center  text-blue-400">
                                                     <span className="">
                                                         {' '}
                                                         {formatMoneyShort(
@@ -152,6 +162,46 @@ function RentPage() {
                                                         {' '}
                                                         {post.acreage} m²
                                                     </span>
+                                                    {typeof post.rate ===
+                                                        'number' && (
+                                                        <span className="flex items-center ml-4 text-yellow-500 text-[0.9rem]">
+                                                            {[
+                                                                1, 2, 3, 4, 5,
+                                                            ].map((i) => {
+                                                                if (
+                                                                    i <=
+                                                                    Math.floor(
+                                                                        post.rate
+                                                                    )
+                                                                )
+                                                                    return (
+                                                                        <FaStar
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        />
+                                                                    );
+                                                                if (
+                                                                    i -
+                                                                        post.rate <=
+                                                                    0.5
+                                                                )
+                                                                    return (
+                                                                        <FaStarHalfAlt
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                        />
+                                                                    );
+                                                                return (
+                                                                    <FaRegStar
+                                                                        key={i}
+                                                                        className="text-gray-300"
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <span className="mt-1 line-clamp-1 text-blue-400">
                                                     {post.location?.name}
@@ -159,7 +209,7 @@ function RentPage() {
                                                 <div className="mt-1 line-clamp-3">
                                                     {post.description}
                                                 </div>
-                                            </div>
+                                            </Link>
                                             <div className="p-3 flex items-center justify-between">
                                                 <div className="flex items-center">
                                                     <Image
@@ -215,15 +265,65 @@ function RentPage() {
                                                             : post.phoneNumber}
                                                     </Button>
                                                     <Button
-                                                        icon={<FaRegHeart />}
+                                                        onClick={async () => {
+                                                            if (
+                                                                !userLoginData
+                                                            ) {
+                                                                return message.warning(
+                                                                    'Bạn cần đăng nhập để yêu thích bài viết'
+                                                                );
+                                                            }
+                                                            try {
+                                                                const res =
+                                                                    await addFavourite(
+                                                                        {
+                                                                            postId: post._id,
+                                                                        }
+                                                                    );
+
+                                                                setPosts(
+                                                                    (prev) =>
+                                                                        prev?.map(
+                                                                            (
+                                                                                p
+                                                                            ) =>
+                                                                                p._id ===
+                                                                                post._id
+                                                                                    ? {
+                                                                                          ...p,
+                                                                                          isFavourite:
+                                                                                              !p.isFavourite,
+                                                                                      }
+                                                                                    : p
+                                                                        ) ??
+                                                                        null
+                                                                );
+
+                                                                message.success(
+                                                                    res.data
+                                                                        .message
+                                                                );
+                                                            } catch (err) {
+                                                                message.error(
+                                                                    'Lỗi khi xử lý yêu thích'
+                                                                );
+                                                            }
+                                                        }}
+                                                        icon={
+                                                            post.isFavourite ? (
+                                                                <FaHeart />
+                                                            ) : (
+                                                                <FaRegHeart />
+                                                            )
+                                                        }
                                                         variant="outlined"
                                                         color="gold"
                                                         className="ml-3"
-                                                    ></Button>
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 ))}
                             </>
                         ) : (

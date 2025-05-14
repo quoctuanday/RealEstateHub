@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import formatTimeDifference from '@/utils/format-time';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
 import {
+    FaHeart,
     FaImage,
     FaPhone,
     FaRegHeart,
@@ -17,7 +18,7 @@ import {
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
 import formatMoneyShort from '@/utils/formatMoney';
-import { getCategory } from '@/api/api';
+import { addFavourite, getCategory } from '@/api/api';
 import { Category } from '@/schema/Category';
 import FilterPostPage from '@/components/filterPostPage';
 import SearchPostPage from '@/components/searchPostPage';
@@ -91,8 +92,7 @@ function SellPage() {
                         ) : posts && posts?.length > 0 ? (
                             <>
                                 {posts.map((post, index) => (
-                                    <Link
-                                        href={`/sell/${post._id}`}
+                                    <div
                                         className={`grid grid-rows-3 overflow-hidden border rounded ${
                                             index == 0 ? '' : 'mt-[1.25rem]'
                                         }`}
@@ -144,7 +144,10 @@ function SellPage() {
                                             </div>
                                         </div>
                                         <div className="row-span-1">
-                                            <div className="p-3 border-b">
+                                            <Link
+                                                href={`/sell/${post._id}`}
+                                                className="p-3 border-b block"
+                                            >
                                                 <h2 className="roboto-bold uppercase line-clamp-2 ">
                                                     {post.title}
                                                 </h2>
@@ -206,7 +209,7 @@ function SellPage() {
                                                 <div className="mt-1 line-clamp-3">
                                                     {post.description}
                                                 </div>
-                                            </div>
+                                            </Link>
                                             <div className="p-3 flex items-center justify-between">
                                                 <div className="flex items-center">
                                                     <Image
@@ -262,15 +265,65 @@ function SellPage() {
                                                             : post.phoneNumber}
                                                     </Button>
                                                     <Button
-                                                        icon={<FaRegHeart />}
+                                                        onClick={async () => {
+                                                            if (
+                                                                !userLoginData
+                                                            ) {
+                                                                return message.warning(
+                                                                    'Bạn cần đăng nhập để yêu thích bài viết'
+                                                                );
+                                                            }
+                                                            try {
+                                                                const res =
+                                                                    await addFavourite(
+                                                                        {
+                                                                            postId: post._id,
+                                                                        }
+                                                                    );
+
+                                                                setPosts(
+                                                                    (prev) =>
+                                                                        prev?.map(
+                                                                            (
+                                                                                p
+                                                                            ) =>
+                                                                                p._id ===
+                                                                                post._id
+                                                                                    ? {
+                                                                                          ...p,
+                                                                                          isFavourite:
+                                                                                              !p.isFavourite,
+                                                                                      }
+                                                                                    : p
+                                                                        ) ??
+                                                                        null
+                                                                );
+
+                                                                message.success(
+                                                                    res.data
+                                                                        .message
+                                                                );
+                                                            } catch (err) {
+                                                                message.error(
+                                                                    'Lỗi khi xử lý yêu thích'
+                                                                );
+                                                            }
+                                                        }}
+                                                        icon={
+                                                            post.isFavourite ? (
+                                                                <FaHeart />
+                                                            ) : (
+                                                                <FaRegHeart />
+                                                            )
+                                                        }
                                                         variant="outlined"
                                                         color="gold"
                                                         className="ml-3"
-                                                    ></Button>
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 ))}
                             </>
                         ) : (

@@ -14,6 +14,7 @@ import {
     LuList,
     LuLogOut,
 } from 'react-icons/lu';
+import { MdOutlineHelpCenter } from 'react-icons/md';
 import { RiHome3Line } from 'react-icons/ri';
 
 function SidebarAdmin() {
@@ -94,6 +95,18 @@ function SidebarAdmin() {
                     >
                         <FaRegNewspaper className="pr-1" />
                         Quản lí tin tức
+                    </Link>
+                    <Link
+                        href={'/admin/utility'}
+                        className={`${
+                            active == '/admin/utility' && 'text-rootColor'
+                        } hover:text-rootColor mt-2 cursor-pointer flex items-center`}
+                        onClick={() => {
+                            handleClickPath('/admin/utility');
+                        }}
+                    >
+                        <MdOutlineHelpCenter className="pr-1" />
+                        Quản lí tiện ích
                     </Link>
 
                     <Link
