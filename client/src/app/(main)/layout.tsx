@@ -1,7 +1,11 @@
 'use client';
-import { getUser, logout } from '@/api/api';
+import { getFavourite, getNotify, getUser, logout } from '@/api/api';
 import DraggableChatbot from '@/components/draggableChatBot';
 import FooterPage from '@/components/footer';
+import ModalFavorite from '@/components/modalFavourite';
+import ModalNotification from '@/components/modalNotification';
+import { Notify } from '@/schema/notification';
+import { Post } from '@/schema/Post';
 import { useUser } from '@/store/store';
 import { Button } from 'antd';
 import Image from 'next/image';
@@ -27,6 +31,11 @@ export default function MainLayout({
     const pathName = usePathname();
     const [active, setActive] = useState(pathName);
     const router = useRouter();
+    const [openFavoriteModal, setOpenFavoriteModal] = useState(false);
+    const [openNotificationModal, setOpenNotificationModal] = useState(false);
+
+    const [favorites, setFavorites] = useState<Post[]>([]);
+    const [notifications, setNotifications] = useState<Notify[]>([]);
 
     const handleClickPath = (path: string) => {
         setActive(path);
@@ -57,7 +66,6 @@ export default function MainLayout({
                 try {
                     const response = await getUser();
                     if (response) {
-                        console.log(response.data);
                         const userData = JSON.stringify(response.data);
                         localStorage.setItem('userLoginData', userData);
                         const storedUser =
@@ -65,6 +73,16 @@ export default function MainLayout({
                         if (storedUser) {
                             setUserLoginData(JSON.parse(storedUser));
                         }
+                    }
+
+                    const favRes = await getFavourite();
+                    if (favRes && favRes.data.favorites) {
+                        setFavorites(favRes.data.favorites);
+                    }
+
+                    const notifyRes = await getNotify();
+                    if (notifyRes && notifyRes.data.notifications) {
+                        setNotifications(notifyRes.data.notifications);
                     }
                 } catch (error) {
                     console.log(error);
@@ -130,15 +148,33 @@ export default function MainLayout({
                         Văn bản pháp luật
                     </Link>
                 </div>
+                <ModalFavorite
+                    open={openFavoriteModal}
+                    onClose={() => setOpenFavoriteModal(false)}
+                    favorites={favorites}
+                />
+
+                <ModalNotification
+                    open={openNotificationModal}
+                    onClose={() => setOpenNotificationModal(false)}
+                    notifications={notifications}
+                />
 
                 {userLoginData ? (
                     <div className="flex items-center relative">
-                        <i className="cursor-pointer">
+                        <i
+                            className="cursor-pointer"
+                            onClick={() => setOpenNotificationModal(true)}
+                        >
                             <FaRegBell />
                         </i>
-                        <i className="ml-3 cursor-pointer">
+                        <i
+                            className="ml-3 cursor-pointer"
+                            onClick={() => setOpenFavoriteModal(true)}
+                        >
                             <FaRegHeart />
                         </i>
+
                         <div className="flex items-center relative parent ml-5">
                             <Image
                                 src={

@@ -340,5 +340,37 @@ class PostController {
             return res.status(500).json({ message: 'Lỗi máy chủ' });
         }
     }
+
+    async getFavourite(req, res) {
+        try {
+            const userId = req.user.userId;
+
+            const favList = await FavouritePost.find({ userId });
+
+            const postIds = favList.map((fav) => fav.postId);
+
+            const posts = await Post.find({ _id: { $in: postIds } }).populate(
+                'userId',
+                'image'
+            );
+
+            const postsWithFlag = posts.map((post) => {
+                const postObj = post.toObject();
+                if (postObj.userId) {
+                    postObj.userImage = postObj.userId.image;
+                }
+                postObj.isFavourite = true;
+                return postObj;
+            });
+
+            return res.status(200).json({ favorites: postsWithFlag });
+        } catch (error) {
+            console.error('Error getting favourite posts:', error);
+            return res.status(500).json({
+                message: 'Lỗi khi lấy danh sách bài yêu thích',
+                error,
+            });
+        }
+    }
 }
 module.exports = new PostController();

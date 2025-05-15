@@ -131,7 +131,9 @@ function ManagePostsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="">Chưa có bài đăng nào !</div>
+                    <div className="h-[5rem] flex items-center justify-center">
+                        Chưa có bài đăng nào !
+                    </div>
                 )}
                 <div className="mt-5 flex items-center justify-center">
                     <PaginationComponent

@@ -5,10 +5,9 @@ import MapView from '@/components/map';
 import { Post } from '@/schema/Post';
 import dateConvert from '@/utils/convertDate';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { FaPhoneVolume } from 'react-icons/fa';
 import { IoIosPricetags } from 'react-icons/io';
 
@@ -122,7 +121,7 @@ function ViewPost({ post, isAdmin, setForm }: Props) {
         }
         const response = await updatePost(data, post?._id);
         if (response) {
-            toast.success(
+            message.success(
                 isApprove ? 'Bài viết đã  duyệt' : 'Bài viết đã từ chối'
             );
             setForm(false);

@@ -96,6 +96,7 @@ export const updatePost = (data, id) =>
     api.put(`/posts/update/${id}`, { data });
 export const getPost = (data = {}) =>
     api.get('/posts/getPost', { params: data });
+export const getFavourite = () => api.get('/posts/getFavourite');
 
 //Map
 export const getProvince = () => api_map.get('/p/');

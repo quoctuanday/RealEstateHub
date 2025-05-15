@@ -77,7 +77,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     return (
         <div className="mt-[1.25rem] mb-0 w-[60%] rounded-[15px] border p-[1rem]">
-            <h1 className="roboto-bold text-[1rem]">Hình ảnh</h1>
+            <div className="flex items-center">
+                <h1 className="roboto-bold text-[1rem]">Hình ảnh</h1>
+                <span className="ml-2">(Tối thiểu 4 ảnh)</span>
+            </div>
             <Upload
                 listType="picture-card"
                 fileList={fileList}

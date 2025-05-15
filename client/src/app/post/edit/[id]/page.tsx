@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import TitleComponent from '@/components/title';
 import {
@@ -49,18 +50,47 @@ const convenients = [
     { id: 15, name: 'Có khu vực phơi đồ' },
 ];
 
+const durations = [
+    { value: 7, label: '7 ngày', price: 7000 },
+    { value: 15, label: '15 ngày', price: 15000 },
+    { value: 30, label: '30 ngày', price: 30000 },
+];
+
 interface Images {
     images: string[];
     urlSaveImages: string;
 }
 
+const CustomRadio = ({ value, selected, onChange, price }: any) => {
+    return (
+        <div
+            className={`
+            h-20 flex flex-col items-center justify-center border rounded-md cursor-pointer p-2
+            ${
+                selected
+                    ? 'border-blue-500 bg-blue-100 shadow-custom-medium'
+                    : 'border-gray-300'
+            }
+          `}
+            onClick={onChange}
+        >
+            <div className="text-lg font-bold  flex flex-col items-center justify-center">
+                <span>{value} ngày </span>
+                <span>{price.toLocaleString('vi-VN')} VND</span>
+            </div>
+        </div>
+    );
+};
+
 function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+    const [duration, setDuration] = useState<number | null>(null);
     const [isThinking, setIsThinking] = useState(false);
     const { userLoginData } = useUser();
     const router = useRouter();
     const [form] = Form.useForm();
     const [location, setLocation] = useState<Location | null>(null);
     const [images, setImages] = useState<Images | null>(null);
+    const [postExpiredAt, setPostExpiredAt] = useState<Date | null>(null);
 
     useEffect(() => {
         const getData = async () => {
@@ -85,6 +115,7 @@ function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
                     houseType: data.houseType,
                     features: data.features,
                 });
+                setPostExpiredAt(new Date(data.expiredAt));
                 setImages({
                     images: data.images,
                     urlSaveImages: data.url,
@@ -128,12 +159,28 @@ function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
         }
     };
 
-    const handleFinish: FormProps<Post>['onFinish'] = async (values) => {
+    const handleFinish: FormProps<Post>['onFinish'] = async () => {
         const updatedValues = form.getFieldsValue();
+        const now = new Date();
         updatedValues.location = location;
         updatedValues.images = images?.images;
         updatedValues.urlSaveImages = images?.urlSaveImages;
-        console.log(values, 'hello');
+        updatedValues.status = 'pending';
+
+        if (duration) {
+            updatedValues.duration = duration;
+            updatedValues.isCheckout = false;
+
+            if (!postExpiredAt || new Date(postExpiredAt) < now) {
+                updatedValues.expiredAt = new Date(
+                    now.getTime() + duration * 24 * 60 * 60 * 1000
+                );
+            } else {
+                updatedValues.expiredAt = new Date(
+                    postExpiredAt.getTime() + duration * 24 * 60 * 60 * 1000
+                );
+            }
+        }
         const resolvedParams = await params;
         const { id } = resolvedParams;
 
@@ -449,6 +496,57 @@ function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
                     userLoginData={userLoginData}
                     setImages={setImages}
                 />
+                <div className="mt-[1.25rem] mb-0 w-[60%] rounded-[15px] border p-[1rem]">
+                    <Form.Item
+                        label={
+                            <div className="flex items-center">
+                                <h3 className="roboto-bold text-[1rem]">
+                                    Số ngày hiển thị
+                                </h3>
+                                {postExpiredAt && (
+                                    <span className="text-sm text-gray-500 ml-2">
+                                        (Còn lại:{' '}
+                                        {Math.max(
+                                            Math.ceil(
+                                                (new Date(
+                                                    postExpiredAt
+                                                ).getTime() -
+                                                    Date.now()) /
+                                                    (1000 * 60 * 60 * 24)
+                                            ),
+                                            0
+                                        )}{' '}
+                                        ngày)
+                                    </span>
+                                )}
+                            </div>
+                        }
+                        name="duration"
+                    >
+                        <Radio.Group
+                            onChange={(e) => setDuration(e.target.value)}
+                            value={duration}
+                            className="grid grid-cols-3 gap-3"
+                        >
+                            {durations.map((item) => (
+                                <CustomRadio
+                                    key={item.value}
+                                    value={item.value}
+                                    price={item.price}
+                                    selected={duration === item.value}
+                                    onChange={() => {
+                                        form.setFieldsValue({
+                                            duration: item.value,
+                                        });
+                                        setDuration(item.value);
+                                    }}
+                                    onClick={() => console.log('Click')}
+                                    className="col-span-1"
+                                />
+                            ))}
+                        </Radio.Group>
+                    </Form.Item>
+                </div>
             </div>
             <div className="fixed bottom-0 left-0 right-0 h-[6rem] px-[1.25rem] bg-white">
                 <div className="flex items-center justify-between h-full border-t px-[3rem]">
