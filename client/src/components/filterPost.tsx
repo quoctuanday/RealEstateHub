@@ -1,35 +1,31 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { getPost } from '@/api/api';
-import { Post } from '@/schema/Post';
 import { Button, DatePicker, Form, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 
 interface Props {
     className: string;
-    setPosts: React.Dispatch<React.SetStateAction<Post[] | null>>;
+    setQuery: React.Dispatch<React.SetStateAction<any>>;
 }
 
-function FilterPost({ className, setPosts }: Props) {
+function FilterPost({ className, setQuery }: Props) {
     const [filters, setFilters] = useState({
         dateRange: null as [dayjs.Dayjs, dayjs.Dayjs] | null,
         status: '',
         postType: '',
     });
 
-    const handleFilter = async () => {
+    const handleFilter = () => {
         const { dateRange, status, postType } = filters;
-        const query = {
+        setQuery((prev: any) => ({
+            ...prev,
             startDate: dateRange ? dateRange[0].toISOString() : undefined,
             endDate: dateRange ? dateRange[1].toISOString() : undefined,
-            ...(status && { status }),
-            ...(postType && { postType }),
-        };
-        const response = await getPost(query);
-        if (response) {
-            console.log(response.data);
-            setPosts(response.data);
-        }
+            status: status || undefined,
+            postType: postType || undefined,
+            page: 1,
+        }));
     };
 
     return (

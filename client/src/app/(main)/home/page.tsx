@@ -9,6 +9,7 @@ import { News } from '@/schema/News';
 import { Button } from 'antd';
 import Link from 'next/link';
 import dateConvert from '@/utils/convertDate';
+import BannerSearch from '@/components/searchBanner';
 
 function HomePage() {
     const [sellPosts, setSellPosts] = useState<Post[]>([]);
@@ -98,16 +99,15 @@ function HomePage() {
 
     return (
         <>
-            <div className="w-full h-[250px] md:h-[400px] overflow-hidden mb-8">
-                <Image
-                    src="/images/banner.webp"
-                    alt="Banner"
-                    width={1200}
-                    height={500}
-                    className="w-full h-full object-cover"
-                    priority
-                />
+            <div
+                className="h-[250px] md:h-[400px] bg-cover bg-center bg-no-repeat relative mb-8"
+                style={{ backgroundImage: "url('/images/banner.webp')" }}
+            >
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <BannerSearch />
+                </div>
             </div>
+
             <div className="px-4 md:px-20">
                 <section className="mb-12">
                     <h2 className="text-2xl font-semibold mb-6">

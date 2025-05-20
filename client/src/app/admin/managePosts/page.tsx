@@ -6,25 +6,46 @@ import PopupModal from '@/components/popupModal';
 import { Post } from '@/schema/Post';
 import dateConvert from '@/utils/convertDate';
 import { Button, Input, Spin } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function ManagePostsPage() {
     const { Search } = Input;
     const [isFilter, setIsFilter] = useState(false);
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
-    const extraQuery = useMemo(() => ({ manageAdmin: true }), []);
     const [popupModal, setPopupModal] = useState(false);
+    const [query, setQuery] = useState({
+        page: 1,
+        limit: 5,
+        manageAdmin: true,
+    });
+    const [total, setTotal] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSearch = async (value: string) => {
-        console.log(value);
-        const response = await getPost({ search: value });
-        if (response) {
-            const data = response.data;
-            setPosts(data);
-        }
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setIsLoading(true);
+            try {
+                const res = await getPost(query);
+                if (res) {
+                    setPosts(res.data.posts);
+                    setTotal(res.data.total);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchPosts();
+    }, [query]);
+
+    const handleSearch = (value: string) => {
+        setQuery((prev) => ({
+            ...prev,
+            search: value,
+            page: 1,
+        }));
     };
 
     return (
@@ -38,7 +59,7 @@ function ManagePostsPage() {
                 >
                     Bộ lọc
                 </Button>
-                {isFilter && <FilterPost className="" setPosts={setPosts} />}
+                {isFilter && <FilterPost className="" setQuery={setQuery} />}
             </div>
             <div className="w-full min-h-[30rem] bg-white">
                 <div className="grid grid-cols-12 roboto-bold">
@@ -71,11 +92,11 @@ function ManagePostsPage() {
                         isAdmin={true}
                     />
                 )}
-                {posts === null ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center w-full h-[20rem]">
                         <Spin />
                     </div>
-                ) : posts.length > 0 ? (
+                ) : posts && posts.length > 0 ? (
                     <div className="">
                         {posts.map((post, index) => (
                             <div
@@ -85,8 +106,8 @@ function ManagePostsPage() {
                                 <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     {index +
                                         1 +
-                                        ((currentPage || 1) - 1) *
-                                            (pageSize || 5)}
+                                        ((query.page || 1) - 1) *
+                                            (query.limit || 5)}
                                 </div>
                                 <div className="col-span-3  flex  items-center py-1 border-[1px]">
                                     <span className="truncate">
@@ -137,11 +158,11 @@ function ManagePostsPage() {
                 )}
                 <div className="mt-5 flex items-center justify-center">
                     <PaginationComponent
-                        setPosts={setPosts}
-                        setCurrentPages={setCurrentPage}
-                        setPageSizes={setPageSize}
-                        extraQuery={extraQuery}
-                    ></PaginationComponent>
+                        total={total}
+                        current={query.page}
+                        pageSize={query.limit}
+                        setQuery={setQuery}
+                    />
                 </div>
             </div>
         </div>

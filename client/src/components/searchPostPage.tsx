@@ -1,45 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { getDistrict, getPost, getProvince } from '@/api/api';
-import { Post } from '@/schema/Post';
+import { getDistrict, getProvince } from '@/api/api';
 import { Select, Popover, Input } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
-type District = {
+interface District {
     code: number;
-    codename: string;
-    division_type: string;
     name: string;
-    province_code: number;
-    wards: string[];
-};
-
-type Province = {
-    code: number;
-    codename: string;
-    districts: District[];
-    division_type: string;
-    name: string;
-    phone_code: number;
-};
-
-interface Props {
-    type: string;
-    currentPage?: number;
-    pageSize?: number;
-    setPosts: React.Dispatch<React.SetStateAction<Post[] | null>>;
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SearchPostPage: React.FC<Props> = ({
-    setPosts,
-    type,
-    currentPage,
-    pageSize,
-    setIsLoading,
-}) => {
-    const searchRef = useRef<HTMLDivElement>(null);
+interface Province {
+    code: number;
+    name: string;
+    districts: District[];
+}
 
+interface Props {
+    setQuery: React.Dispatch<React.SetStateAction<any>>;
+}
+
+const SearchPostPage: React.FC<Props> = ({ setQuery }) => {
+    const searchRef = useRef<HTMLDivElement>(null);
     const [provinceData, setProvinceData] = useState<Province[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
         null
@@ -54,7 +35,6 @@ const SearchPostPage: React.FC<Props> = ({
         try {
             const districtResponse = await getDistrict(provinceCode);
             if (districtResponse) {
-                console.log(districtResponse.data.districts);
                 setDistrictData(districtResponse.data.districts);
             }
         } catch (error) {
@@ -80,34 +60,17 @@ const SearchPostPage: React.FC<Props> = ({
                 console.error('Failed to fetch provinces:', error);
             }
         };
-
         fetchProvinces();
     }, []);
 
-    const handleFilter = async (clear: boolean) => {
-        setIsLoading(true);
-        console.log(selectedDistrict, selectedProvince?.name);
-        const query: any = {
-            status: 'active',
-            page: currentPage,
-            limit: pageSize,
-            postType: type === 'sell' ? 'sell' : 'rent',
-            ...(!clear && selectedDistrict && { district: selectedDistrict }),
-            ...(!clear &&
-                selectedProvince && { province: selectedProvince.name }),
-        };
-
-        try {
-            const response = await getPost(query);
-            if (response) {
-                setPosts(response.data.posts);
-            }
-        } catch (error) {
-            console.error('Failed to fetch posts:', error);
-        } finally {
-            setShowPopover(false);
-            setIsLoading(false);
-        }
+    const applySearch = () => {
+        setQuery((prev: any) => ({
+            ...prev,
+            province: selectedProvince?.name,
+            district: selectedDistrict,
+            page: 1,
+        }));
+        setShowPopover(false);
     };
 
     const popoverContent = (
@@ -123,9 +86,7 @@ const SearchPostPage: React.FC<Props> = ({
                     const province = provinceData.find((p) => p.code === value);
                     setSelectedProvince(province || null);
                     setSelectedDistrict(undefined);
-                    if (province) {
-                        fetchDistricts(province.code);
-                    }
+                    if (province) fetchDistricts(province.code);
                 }}
             >
                 {provinceData.map((province) => (
@@ -145,16 +106,19 @@ const SearchPostPage: React.FC<Props> = ({
                                 ? 'text-blue-600 font-medium'
                                 : ''
                         }`}
-                        onClick={() => {
-                            setSelectedDistrict(district.name);
-                            console.log(district);
-                            setShowPopover(false);
-                        }}
+                        onClick={() => setSelectedDistrict(district.name)}
                     >
                         {district.name}
                     </div>
                 ))}
             </div>
+
+            <button
+                className="mt-3 bg-blue-500 text-white px-4 py-1 rounded"
+                onClick={applySearch}
+            >
+                Áp dụng
+            </button>
         </div>
     );
 
@@ -167,9 +131,7 @@ const SearchPostPage: React.FC<Props> = ({
                 onOpenChange={setShowPopover}
                 placement="bottomLeft"
                 styles={{
-                    body: {
-                        width: searchRef.current?.offsetWidth || 300,
-                    },
+                    body: { width: searchRef.current?.offsetWidth || 300 },
                 }}
             >
                 <div ref={searchRef}>
@@ -178,7 +140,6 @@ const SearchPostPage: React.FC<Props> = ({
                         className="w-full"
                         placeholder="Tìm kiếm bài đăng..."
                         onClick={() => setShowPopover(true)}
-                        onSearch={() => handleFilter(false)}
                         value={selectedDistrict || ''}
                         onChange={(e) => {
                             const value = e.target.value;
@@ -186,9 +147,15 @@ const SearchPostPage: React.FC<Props> = ({
                                 setSelectedDistrict(undefined);
                                 setSelectedProvince(null);
                                 setDistrictData([]);
-                                handleFilter(true);
+                                setQuery((prev: any) => ({
+                                    ...prev,
+                                    district: undefined,
+                                    province: undefined,
+                                    page: 1,
+                                }));
                             }
                         }}
+                        onSearch={applySearch}
                     />
                 </div>
             </Popover>

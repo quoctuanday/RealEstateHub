@@ -27,7 +27,7 @@ export default function MainLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const { userLoginData, setUserLoginData } = useUser();
+    const { userLoginData, setUserLoginData, socket } = useUser();
     const pathName = usePathname();
     const [active, setActive] = useState(pathName);
     const router = useRouter();
@@ -61,36 +61,55 @@ export default function MainLayout({
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (token) {
-            const fetchData = async () => {
-                try {
-                    const response = await getUser();
-                    if (response) {
-                        const userData = JSON.stringify(response.data);
-                        localStorage.setItem('userLoginData', userData);
-                        const storedUser =
-                            localStorage.getItem('userLoginData');
-                        if (storedUser) {
-                            setUserLoginData(JSON.parse(storedUser));
-                        }
-                    }
+        if (!token) return;
 
-                    const favRes = await getFavourite();
-                    if (favRes && favRes.data.favorites) {
-                        setFavorites(favRes.data.favorites);
+        const fetchInitialData = async () => {
+            try {
+                const response = await getUser();
+                if (response) {
+                    const userData = JSON.stringify(response.data);
+                    localStorage.setItem('userLoginData', userData);
+                    const storedUser = localStorage.getItem('userLoginData');
+                    if (storedUser) {
+                        setUserLoginData(JSON.parse(storedUser));
                     }
-
-                    const notifyRes = await getNotify();
-                    if (notifyRes && notifyRes.data.notifications) {
-                        setNotifications(notifyRes.data.notifications);
-                    }
-                } catch (error) {
-                    console.log(error);
                 }
+
+                const favRes = await getFavourite();
+                if (favRes?.data?.favorites) {
+                    setFavorites(favRes.data.favorites);
+                }
+
+                const notifyRes = await getNotify();
+                if (notifyRes.data.notify) {
+                    setNotifications(notifyRes.data.notify);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const fetchFavouritesOnly = async () => {
+            try {
+                const favRes = await getFavourite();
+                if (favRes?.data?.favorites) {
+                    setFavorites(favRes.data.favorites);
+                }
+            } catch (error) {
+                console.error('Lỗi khi fetch favourite:', error);
+            }
+        };
+
+        fetchInitialData();
+
+        if (socket) {
+            socket.on('favouritePost-update', fetchFavouritesOnly);
+
+            return () => {
+                socket.off('favouritePost-update', fetchFavouritesOnly);
             };
-            fetchData();
         }
-    }, [setUserLoginData]);
+    }, [setUserLoginData, socket]);
 
     return (
         <>

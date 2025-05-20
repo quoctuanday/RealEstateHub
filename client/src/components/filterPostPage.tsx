@@ -1,25 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { getPost } from '@/api/api';
-import { Post } from '@/schema/Post';
 import { Button, Form, Select } from 'antd';
 import React, { useState } from 'react';
 
 interface Props {
-    type: string;
-    currentPage?: number;
-    pageSize?: number;
-    setPosts: React.Dispatch<React.SetStateAction<Post[] | null>>;
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setQuery: React.Dispatch<React.SetStateAction<any>>;
 }
 
-function FilterPostPage({
-    setPosts,
-    type,
-    currentPage,
-    pageSize,
-    setIsLoading,
-}: Props) {
+function FilterPostPage({ setQuery }: Props) {
     const [filters, setFilters] = useState({
         houseType: [] as string[],
     });
@@ -33,30 +21,12 @@ function FilterPostPage({
         { id: 6, name: 'Kho, xưởng' },
     ];
 
-    const handleFilter = async () => {
-        setIsLoading(true);
-        const { houseType } = filters;
-        const query: any = {
-            status: 'active',
-            page: currentPage,
-            limit: pageSize,
-        };
-        if (type === 'sell') {
-            query.postType = 'sell';
-        } else {
-            query.postType = 'rent';
-        }
-
-        if (houseType.length > 0) {
-            query.houseType = houseType;
-        }
-
-        const response = await getPost(query);
-        if (response) {
-            console.log(response.data);
-            setPosts(response.data.posts);
-            setIsLoading(false);
-        }
+    const handleFilter = () => {
+        setQuery((prev: any) => ({
+            ...prev,
+            houseType: filters.houseType,
+            page: 1,
+        }));
     };
 
     return (

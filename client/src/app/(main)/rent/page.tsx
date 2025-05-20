@@ -3,7 +3,7 @@ import PaginationComponent from '@/components/pagination';
 import { Post } from '@/schema/Post';
 import { Button, message, Spin, Tooltip } from 'antd';
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import formatTimeDifference from '@/utils/format-time';
 import maskPhoneNumber from '@/utils/hidePhoneNumber';
 import {
@@ -18,7 +18,7 @@ import {
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
 import formatMoneyShort from '@/utils/formatMoney';
-import { addFavourite, getCategory } from '@/api/api';
+import { addFavourite, getCategory, getPost } from '@/api/api';
 import { Category } from '@/schema/Category';
 import FilterPostPage from '@/components/filterPostPage';
 import SearchPostPage from '@/components/searchPostPage';
@@ -31,12 +31,13 @@ function RentPage() {
     const [categories, setCategories] = useState<Category[] | null>(null);
     const [selectedChildCates, setSelectedChildCates] = useState<string[]>([]);
     const [isPhoneHidden, setIsPhoneHidden] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
-    const extraQuery = useMemo(
-        () => ({ status: 'active', postType: 'rent' }),
-        []
-    );
+    const [query, setQuery] = useState({
+        page: 1,
+        limit: 5,
+        postType: 'rent',
+        status: 'active',
+    });
+    const [total, setTotal] = useState(0);
 
     useEffect(() => {
         const getCate = async () => {
@@ -50,8 +51,25 @@ function RentPage() {
         getCate();
     }, []);
 
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setIsLoading(true);
+            try {
+                const res = await getPost(query);
+                if (res) {
+                    setPosts(res.data.posts);
+                    setTotal(res.data.total);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchPosts();
+    }, [query]);
+
     const toggleChildCate = (childCate: string) => {
-        console.log(currentPage);
         setSelectedChildCates((prev) =>
             prev.includes(childCate)
                 ? prev.filter((c) => c !== childCate)
@@ -61,21 +79,9 @@ function RentPage() {
 
     return (
         <div className="mt-[1.25rem] px-[15rem]">
-            <SearchPostPage
-                type="rent"
-                setIsLoading={setIsLoading}
-                setPosts={setPosts}
-                pageSize={pageSize}
-                currentPage={1}
-            />
+            <SearchPostPage setQuery={setQuery} />
             <div className="py-[1.25rem] flex items-center border-b">
-                <FilterPostPage
-                    setIsLoading={setIsLoading}
-                    setPosts={setPosts}
-                    currentPage={1}
-                    pageSize={pageSize}
-                    type="rent"
-                />
+                <FilterPostPage setQuery={setQuery} />
             </div>
             <div className="grid grid-cols-8 mt-[1.25rem] gap-5 min-h-[15rem]">
                 <main className="col-span-6 ">
@@ -334,10 +340,10 @@ function RentPage() {
                     </ul>
                     <div className="flex items-center justify-center py-5">
                         <PaginationComponent
-                            setPosts={setPosts}
-                            setCurrentPages={setCurrentPage}
-                            setPageSizes={setPageSize}
-                            extraQuery={extraQuery}
+                            total={total}
+                            current={query.page}
+                            pageSize={query.limit}
+                            setQuery={setQuery}
                         />
                     </div>
                 </main>

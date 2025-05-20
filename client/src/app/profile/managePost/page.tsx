@@ -1,9 +1,9 @@
 'use client';
 import { getPost, updatePost } from '@/api/api';
 import { Post } from '@/schema/Post';
-import { Button, Input, Popconfirm } from 'antd';
+import { Button, Input, Popconfirm, Spin } from 'antd';
 import { useRouter } from 'next/navigation';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dateConvert from '@/utils/convertDate';
 import Image from 'next/image';
 import { FaImages } from 'react-icons/fa';
@@ -21,15 +21,38 @@ function ManagePostpage() {
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [chosenPost, setChosenPost] = useState<Post | null>(null);
     const [popupModal, setPopupModal] = useState(false);
-    const extraQuery = useMemo(() => ({ person: true }), []);
+    const [query, setQuery] = useState({
+        page: 1,
+        limit: 5,
+        manageAdmin: true,
+    });
+    const [total, setTotal] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSearch = async (value: string) => {
-        console.log(value);
-        const response = await getPost({ search: value });
-        if (response) {
-            const data = response.data;
-            setPosts(data);
-        }
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setIsLoading(true);
+            try {
+                const res = await getPost(query);
+                if (res) {
+                    setPosts(res.data.posts);
+                    setTotal(res.data.total);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchPosts();
+    }, [query]);
+
+    const handleSearch = (value: string) => {
+        setQuery((prev) => ({
+            ...prev,
+            search: value,
+            page: 1,
+        }));
     };
 
     const handleCheckout = async (postId: string) => {
@@ -70,9 +93,13 @@ function ManagePostpage() {
                 />
             )}
             <Search className="mt-2" onSearch={handleSearch} />
-            <FilterPost className="" setPosts={setPosts} />
+            <FilterPost className="" setQuery={setQuery} />
             <div className="mt-[1.25rem] w-full min-h-[20rem]">
-                {posts ? (
+                {isLoading ? (
+                    <div className="flex items-center justify-center w-full h-[20rem]">
+                        <Spin />
+                    </div>
+                ) : posts && posts.length > 0 ? (
                     posts.map((post) => (
                         <div
                             className="grid grid-cols-11 gap-2 mb-3"
@@ -221,8 +248,10 @@ function ManagePostpage() {
             </div>
             <div className="flex w-full justify-center items-center py-5">
                 <PaginationComponent
-                    setPosts={setPosts}
-                    extraQuery={extraQuery}
+                    total={total}
+                    current={query.page}
+                    pageSize={query.limit}
+                    setQuery={setQuery}
                 />
             </div>
         </div>

@@ -62,7 +62,7 @@ function LegalDocumentPage() {
                 </div>
                 {documents?.map((documents, index) => (
                     <div
-                        className="grid grid-cols-9 border py-2"
+                        className="grid grid-cols-9 border"
                         key={documents._id}
                     >
                         <div className="col-span-1 border-r flex items-center justify-center">
@@ -70,8 +70,10 @@ function LegalDocumentPage() {
                                 1 +
                                 ((currentPage || 1) - 1) * (pageSize || 5)}
                         </div>
-                        <div className="col-span-2 border-r flex items-center justify-center">
-                            {documents.title}
+                        <div className="col-span-2 text-center border-r flex items-center justify-center">
+                            <div className="line-clamp-1">
+                                {documents.title}
+                            </div>
                         </div>
                         <div className="col-span-2 border-r flex items-center justify-center">
                             {documents.source}
@@ -79,7 +81,7 @@ function LegalDocumentPage() {
                         <div className="col-span-2 border-r flex items-center justify-center">
                             {dateConvert(documents.createdAt)}
                         </div>
-                        <div className="col-span-2 border-r flex items-center justify-center">
+                        <div className="col-span-2 border-r py-2 flex items-center justify-center">
                             <Button
                                 onClick={() => {
                                     setFileUrlToPreview(documents.fileUrl);
