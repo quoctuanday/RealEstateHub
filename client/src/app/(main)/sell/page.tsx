@@ -25,7 +25,7 @@ import SearchPostPage from '@/components/searchPostPage';
 import Link from 'next/link';
 
 function SellPage() {
-    const { userLoginData } = useUser();
+    const { userLoginData, socket } = useUser();
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<Category[] | null>(null);
@@ -67,15 +67,36 @@ function SellPage() {
                 setIsLoading(false);
             }
         };
+
         fetchPosts();
-    }, [query]);
+
+        if (!socket) return;
+
+        const handlePostUpdate = () => {
+            fetchPosts();
+        };
+
+        socket.on('post-update', handlePostUpdate);
+
+        return () => {
+            socket.off('post-update', handlePostUpdate);
+        };
+    }, [query, socket]);
 
     const toggleChildCate = (childCate: string) => {
-        setSelectedChildCates((prev) =>
-            prev.includes(childCate)
+        setSelectedChildCates((prev) => {
+            const newSelected = prev.includes(childCate)
                 ? prev.filter((c) => c !== childCate)
-                : [...prev, childCate]
-        );
+                : [...prev, childCate];
+
+            setQuery((prevQuery) => ({
+                ...prevQuery,
+                childCate: newSelected,
+                page: 1,
+            }));
+
+            return newSelected;
+        });
     };
 
     return (

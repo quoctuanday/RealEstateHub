@@ -14,9 +14,11 @@ import FilterPost from '@/components/filterPost';
 import PopupModal from '@/components/popupModal';
 import PaginationComponent from '@/components/pagination';
 import toast from 'react-hot-toast';
+import { useUser } from '@/store/store';
 
 function ManagePostpage() {
     const router = useRouter();
+    const { socket } = useUser();
     const { Search } = Input;
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [chosenPost, setChosenPost] = useState<Post | null>(null);
@@ -45,7 +47,18 @@ function ManagePostpage() {
             }
         };
         fetchPosts();
-    }, [query]);
+        if (!socket) return;
+
+        const handlePostUpdate = () => {
+            fetchPosts();
+        };
+
+        socket.on('post-update', handlePostUpdate);
+
+        return () => {
+            socket.off('post-update', handlePostUpdate);
+        };
+    }, [query, socket]);
 
     const handleSearch = (value: string) => {
         setQuery((prev) => ({
@@ -155,6 +168,8 @@ function ManagePostpage() {
                                             'Bị từ chối'}
                                         {post.status === 'archived' &&
                                             'Đang lưu trữ'}
+                                        {post.status === 'expired' &&
+                                            'Đã hết hạn'}
                                         {post.status === 'deleted' && 'Đã xóa'}
                                     </span>
                                 </div>

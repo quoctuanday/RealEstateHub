@@ -4,12 +4,12 @@ import FooterPage from '@/components/footer';
 import TitleComponent from '@/components/title';
 import { Notify } from '@/schema/notification';
 import { useUser } from '@/store/store';
-import { CloseOutlined } from '@ant-design/icons';
-import { Button, Popover, Spin } from 'antd';
+import { Spin, Tag, Divider, Typography, Modal } from 'antd';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { BsFillPostcardFill } from 'react-icons/bs';
-import { FaCoins, FaRegBell } from 'react-icons/fa';
+import { FaCoins } from 'react-icons/fa';
+const { Title, Paragraph, Text } = Typography;
 
 function DashboardPage() {
     const { userLoginData } = useUser();
@@ -19,29 +19,29 @@ function DashboardPage() {
     const [notify, setNotify] = useState<Notify[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedNotify, setSelectedNotify] = useState<Notify | null>(null);
-    const [visible, setVisible] = useState<boolean>(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
-    const handleOpen = async (item: Notify) => {
-        const response = await updateNotify(item._id, { isRead: true });
+    const handleSelectNotify = async (item: Notify) => {
+        setSelectedNotify(item);
 
-        if (response) {
-            setNotify((prev) =>
-                prev
-                    ? prev.map((noti) =>
-                          noti._id === item._id
-                              ? { ...noti, isRead: true }
-                              : noti
-                      )
-                    : null
-            );
-
-            setSelectedNotify({ ...item, isRead: true });
-            setVisible(true);
+        if (!item.isRead) {
+            try {
+                await updateNotify(item._id, { isRead: true });
+                setNotify((prev) =>
+                    (prev ?? []).map((n) =>
+                        n._id === item._id ? { ...n, isRead: true } : n
+                    )
+                );
+                setSelectedNotify({ ...item, isRead: true });
+            } catch (error) {
+                console.error('Lỗi khi cập nhật trạng thái đã đọc:', error);
+            }
         }
+        setModalOpen(true);
     };
 
-    const handleClose = () => {
-        setVisible(false);
+    const handleCloseModal = () => {
+        setModalOpen(false);
         setSelectedNotify(null);
     };
 
@@ -132,97 +132,122 @@ function DashboardPage() {
                 </div>
                 <h1 className="roboto-bold mt-[1.25rem]">Thông tin</h1>
                 <div className="grid grid-cols-3 gap-4 w-full mt-3">
-                    <div className="pt-2  col-span-1 min-h-[15rem] shadow-custom-light">
-                        <div className="flex items-center">
-                            <h3 className="roboto-bold pl-2">Thông báo</h3>
-                            <i className="ml-2">
-                                <FaRegBell />
-                            </i>
+                    <div className="pt-2 col-span-1 min-h-[15rem] shadow-custom-light flex flex-col">
+                        <div className="flex items-center px-2">
+                            <h3 className="roboto-bold flex-1">Thông báo</h3>
                         </div>
-                        <div className="w-full h-full mt-2">
+                        <div className="flex-1 flex overflow-hidden mt-2 rounded border border-gray-200">
                             {loading ? (
-                                <div className="flex items-center justify-center w-full h-full">
+                                <div className="flex items-center justify-center w-full">
                                     <Spin size="large" />
                                 </div>
-                            ) : notify && notify.length > 0 ? (
-                                <ul>
-                                    {notify.map((item, index) => (
-                                        <Popover
-                                            key={index}
-                                            content={
-                                                selectedNotify && (
-                                                    <div className="w-72">
-                                                        <div className="flex justify-between items-center">
-                                                            <h2 className="font-bold">
-                                                                {
-                                                                    selectedNotify.title
-                                                                }
-                                                            </h2>
-                                                            <Button
-                                                                type="text"
-                                                                icon={
-                                                                    <CloseOutlined />
-                                                                }
-                                                                onClick={
-                                                                    handleClose
-                                                                }
-                                                            />
-                                                        </div>
-                                                        <p className="mt-2">
-                                                            {
-                                                                selectedNotify.message
-                                                            }
-                                                        </p>
-                                                    </div>
+                            ) : notify && notify.length === 0 ? (
+                                <div className="flex justify-center items-center w-full">
+                                    Chưa có thông báo!
+                                </div>
+                            ) : (
+                                <>
+                                    <ul className="w-full max-h-[20rem] overflow-y-auto border-r border-gray-200">
+                                        {notify &&
+                                            [...notify]
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(
+                                                            b.createdAt || ''
+                                                        ).getTime() -
+                                                        new Date(
+                                                            a.createdAt || ''
+                                                        ).getTime()
                                                 )
-                                            }
-                                            trigger="click"
-                                            open={
-                                                visible &&
-                                                selectedNotify?._id === item._id
-                                            }
-                                            placement="right"
-                                        >
-                                            <li
-                                                key={index}
-                                                className="py-2 cursor-pointer px-2 hover:bg-gray-100"
-                                                onClick={() => handleOpen(item)}
-                                            >
-                                                <h2 className="roboto-bold">
-                                                    {item.title}
-                                                </h2>
-                                                <span className="line-clamp-2 py-1">
-                                                    {item.message}
-                                                </span>
-                                                <div className="flex items-center justify-between">
-                                                    <span>
-                                                        {item.createdAt
-                                                            ? new Date(
-                                                                  item.createdAt
-                                                              ).toLocaleString(
-                                                                  'vi-VN',
-                                                                  {
-                                                                      hour: '2-digit',
-                                                                      minute: '2-digit',
-                                                                      day: '2-digit',
-                                                                      month: '2-digit',
-                                                                      year: 'numeric',
-                                                                  }
-                                                              )
-                                                            : ''}
-                                                    </span>
-                                                    <span className="text-gray-300">
-                                                        {item.isRead
+                                                .map((item) => (
+                                                    <li
+                                                        key={item._id}
+                                                        className={`cursor-pointer border-b p-3 transition ${
+                                                            item.isRead
+                                                                ? 'bg-white'
+                                                                : 'bg-gray-50 border-blue-500'
+                                                        } hover:bg-gray-100`}
+                                                        onClick={() =>
+                                                            handleSelectNotify(
+                                                                item
+                                                            )
+                                                        }
+                                                    >
+                                                        <div className="flex justify-between items-center">
+                                                            <p className="font-medium text-sm line-clamp-1">
+                                                                {item.title ||
+                                                                    'Không có tiêu đề'}
+                                                            </p>
+                                                            {!item.isRead && (
+                                                                <Tag
+                                                                    color="blue"
+                                                                    className="ml-2 text-xs"
+                                                                >
+                                                                    Chưa đọc
+                                                                </Tag>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-400 mt-1">
+                                                            {item.createdAt
+                                                                ? new Date(
+                                                                      item.createdAt
+                                                                  ).toLocaleString()
+                                                                : '---'}
+                                                        </p>
+                                                    </li>
+                                                ))}
+                                    </ul>
+
+                                    <Modal
+                                        title="Chi tiết thông báo"
+                                        open={modalOpen}
+                                        onCancel={handleCloseModal}
+                                        footer={null}
+                                        width={600}
+                                    >
+                                        {selectedNotify ? (
+                                            <>
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <Title
+                                                        level={5}
+                                                        className="m-0"
+                                                    >
+                                                        {selectedNotify.title ||
+                                                            'Không có tiêu đề'}
+                                                    </Title>
+                                                    <Tag
+                                                        color={
+                                                            selectedNotify.isRead
+                                                                ? 'green'
+                                                                : 'blue'
+                                                        }
+                                                    >
+                                                        {selectedNotify.isRead
                                                             ? 'Đã đọc'
                                                             : 'Chưa đọc'}
-                                                    </span>
+                                                    </Tag>
                                                 </div>
-                                            </li>
-                                        </Popover>
-                                    ))}
-                                </ul>
-                            ) : (
-                                'Chưa có thông báo!'
+                                                <Divider />
+                                                <Paragraph className="whitespace-pre-line">
+                                                    {selectedNotify.message}
+                                                </Paragraph>
+                                                <Text type="secondary">
+                                                    Ngày tạo:{' '}
+                                                    {selectedNotify.createdAt
+                                                        ? new Date(
+                                                              selectedNotify.createdAt
+                                                          ).toLocaleString()
+                                                        : ''}
+                                                </Text>
+                                            </>
+                                        ) : (
+                                            <Text>
+                                                Chọn một thông báo để xem chi
+                                                tiết.
+                                            </Text>
+                                        )}
+                                    </Modal>
+                                </>
                             )}
                         </div>
                     </div>

@@ -57,36 +57,44 @@ export default function ModalNotification({
             ) : (
                 <div className="flex gap-6 max-h-[500px] overflow-hidden">
                     <ul className="w-1/2 overflow-y-auto pr-2 space-y-3">
-                        {notifications.map((n) => (
-                            <li
-                                key={n._id}
-                                onClick={() => handleSelect(n)}
-                                className={`cursor-pointer border rounded p-3 transition ${
-                                    n.isRead
-                                        ? 'bg-white'
-                                        : 'bg-gray-50 border-blue-500'
-                                } hover:bg-gray-100`}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <p className="font-medium text-sm line-clamp-1">
-                                        {n.title || 'Không có tiêu đề'}
+                        {[...notifications]
+                            .sort(
+                                (a, b) =>
+                                    new Date(b.createdAt || '').getTime() -
+                                    new Date(a.createdAt || '').getTime()
+                            )
+                            .map((n) => (
+                                <li
+                                    key={n._id}
+                                    onClick={() => handleSelect(n)}
+                                    className={`cursor-pointer border rounded p-3 transition ${
+                                        n.isRead
+                                            ? 'bg-white'
+                                            : 'bg-gray-50 border-blue-500'
+                                    } hover:bg-gray-100`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <p className="font-medium text-sm line-clamp-1">
+                                            {n.title || 'Không có tiêu đề'}
+                                        </p>
+                                        {!n.isRead && (
+                                            <Tag
+                                                color="blue"
+                                                className="ml-2 text-xs"
+                                            >
+                                                Chưa đọc
+                                            </Tag>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {n.createdAt
+                                            ? new Date(
+                                                  n.createdAt
+                                              ).toLocaleString()
+                                            : '---'}
                                     </p>
-                                    {!n.isRead && (
-                                        <Tag
-                                            color="blue"
-                                            className="ml-2 text-xs"
-                                        >
-                                            Chưa đọc
-                                        </Tag>
-                                    )}
-                                </div>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    {n.createdAt
-                                        ? new Date(n.createdAt).toLocaleString()
-                                        : '---'}
-                                </p>
-                            </li>
-                        ))}
+                                </li>
+                            ))}
                     </ul>
 
                     <div className="w-1/2">

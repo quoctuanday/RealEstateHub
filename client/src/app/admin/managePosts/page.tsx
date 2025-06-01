@@ -4,12 +4,14 @@ import FilterPost from '@/components/filterPost';
 import PaginationComponent from '@/components/pagination';
 import PopupModal from '@/components/popupModal';
 import { Post } from '@/schema/Post';
+import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
 import { Button, Input, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 function ManagePostsPage() {
     const { Search } = Input;
+    const { socket } = useUser();
     const [isFilter, setIsFilter] = useState(false);
     const [posts, setPosts] = useState<Post[] | null>(null);
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -38,7 +40,18 @@ function ManagePostsPage() {
             }
         };
         fetchPosts();
-    }, [query]);
+        if (!socket) return;
+
+        const handlePostUpdate = () => {
+            fetchPosts();
+        };
+
+        socket.on('post-update', handlePostUpdate);
+
+        return () => {
+            socket.off('post-update', handlePostUpdate);
+        };
+    }, [query, socket]);
 
     const handleSearch = (value: string) => {
         setQuery((prev) => ({

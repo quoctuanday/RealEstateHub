@@ -87,6 +87,7 @@ class PostController {
                 isCount,
                 district,
                 province,
+                childCate,
                 manageAdmin,
                 ...restQuery
             } = req.query;
@@ -105,8 +106,41 @@ class PostController {
             //update status when post is expired
             await Post.updateMany(
                 { status: 'active', expiredAt: { $lte: new Date() } },
-                { $set: { status: 'archive' } }
+                { $set: { status: 'expired' } }
             );
+            //send  a notify when post is nearly expired
+            // Gửi thông báo nếu bài viết sắp hết hạn (trong vòng 3 ngày)
+            const now = new Date();
+            const threeDaysLater = new Date(
+                now.getTime() + 3 * 24 * 60 * 60 * 1000
+            );
+
+            const postsExpiringSoon = await Post.find({
+                status: 'active',
+                expiredAt: { $gt: now, $lte: threeDaysLater },
+            });
+
+            for (const post of postsExpiringSoon) {
+                const daysLeft = Math.ceil(
+                    (post.expiredAt - now) / (1000 * 60 * 60 * 24)
+                );
+
+                const existingNotice = await Notification.findOne({
+                    userId: post.userId,
+                    message: { $regex: post.title, $options: 'i' },
+                    title: 'Bài viết sắp hết hạn',
+                });
+
+                if (!existingNotice) {
+                    const notice = new Notification({
+                        userId: post.userId,
+                        title: 'Bài viết sắp hết hạn',
+                        message: `Bài viết "${post.title}" sẽ hết hạn sau ${daysLeft} ngày. Vui lòng gia hạn nếu muốn tiếp tục hiển thị.`,
+                    });
+
+                    await notice.save();
+                }
+            }
 
             const baseFilter = {
                 ...(postType && { postType: postType }),
@@ -139,6 +173,27 @@ class PostController {
                         },
                     }),
             };
+
+            //check post in category
+            if (childCate) {
+                const categoryNames = Array.isArray(childCate)
+                    ? childCate
+                    : [childCate];
+
+                const categories = await Category.find({
+                    name: { $in: categoryNames },
+                });
+
+                const categoryIds = categories.map((c) => c._id);
+
+                const postCategoryLinks = await PostCategory.find({
+                    categoryId: { $in: categoryIds },
+                });
+
+                const postIds = postCategoryLinks.map((link) => link.postId);
+
+                baseFilter._id = { $in: postIds };
+            }
 
             if (isCount === 'true') {
                 const countFields = Object.keys(restQuery);

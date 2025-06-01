@@ -29,7 +29,14 @@ const PostSchema = new Schema(
         price: { type: Number, required: true },
         status: {
             type: String,
-            enum: ['pending', 'active', 'decline', 'archived', 'deleted'],
+            enum: [
+                'pending',
+                'active',
+                'decline',
+                'expired',
+                'archived',
+                'deleted',
+            ],
             default: 'pending',
         },
         isCheckout: { type: Boolean, required: true, default: false },

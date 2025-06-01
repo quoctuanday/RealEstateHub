@@ -66,6 +66,9 @@ function FilterPost({ className, setQuery }: Props) {
                         <Select.Option value="archived">
                             Đang lưu trữ
                         </Select.Option>
+                        <Select.Option value="expired">
+                            Đã hết hạn
+                        </Select.Option>
                         <Select.Option value="deleted">Đã xóa</Select.Option>
                     </Select>
                 </div>
