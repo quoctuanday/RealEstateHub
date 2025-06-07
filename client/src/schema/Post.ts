@@ -21,6 +21,7 @@ export type Post = {
         convenients: string[];
     };
     duration: number;
+    view: number;
     expiredAt?: string;
     isCheckout?: boolean;
     urlSaveImages: string;

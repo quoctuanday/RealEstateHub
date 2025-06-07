@@ -173,9 +173,14 @@ function ManagePostpage() {
                                         {post.status === 'deleted' && 'Đã xóa'}
                                     </span>
                                 </div>
-                                <div className="row-span-1 ">
-                                    <strong>Ngày đăng:</strong>
-                                    {dateConvert(post.createdAt)}
+                                <div className="row-span-1 flex items-center">
+                                    <div className="">
+                                        <strong>Ngày đăng:</strong>
+                                        {dateConvert(post.createdAt)}
+                                    </div>
+                                    <span className="ml-2">
+                                        Lượt xem: {post.view}
+                                    </span>
                                 </div>
                             </div>
                             <div className="col-span-3  text-center">

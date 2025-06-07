@@ -15,6 +15,11 @@ function DashboardPage() {
     const { userLoginData } = useUser();
     const [pending, setPending] = useState(0);
     const [active, setActive] = useState(0);
+    const [decline, setDecline] = useState(0);
+    const [expired, setExpired] = useState(0);
+    const [archived, setArchived] = useState(0);
+    const [deleted, setDeleted] = useState(0);
+
     const [isCheckout, setIsCheckout] = useState(0);
     const [notify, setNotify] = useState<Notify[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -49,15 +54,26 @@ function DashboardPage() {
         const fetchCounts = async () => {
             const query = {
                 isCount: true,
-                status: ['pending', 'active'],
+                status: [
+                    'pending',
+                    'active',
+                    'decline',
+                    'expired',
+                    'archived',
+                    'deleted',
+                ],
                 isCheckout: false,
             };
             const response = await getPost(query);
             if (response) {
                 const { counts } = response.data;
-                setPending(counts['status:pending']);
-                setActive(counts['status:active']);
-                setIsCheckout(counts['isCheckout:false']);
+                setPending(counts['status:pending'] || 0);
+                setActive(counts['status:active'] || 0);
+                setDecline(counts['status:decline'] || 0);
+                setExpired(counts['status:expired'] || 0);
+                setArchived(counts['status:archived'] || 0);
+                setDeleted(counts['status:deleted'] || 0);
+                setIsCheckout(counts['isCheckout:false'] || 0);
                 console.log(counts);
             }
         };
@@ -80,7 +96,8 @@ function DashboardPage() {
             <TitleComponent title="Tổng quan" />
             <div className="px-[8rem] mt-[1.25rem]">
                 <h1 className="roboto-bold">Thống kê</h1>
-                <div className="grid grid-cols-3 gap-4 h-[8rem] mt-3">
+                <div className="grid grid-cols-3 gap-4 mt-3">
+                    {/* Số dư */}
                     <div className="col-span-1 rounded shadow-custom-light p-2">
                         <div className="flex items-center">
                             <i>
@@ -101,42 +118,53 @@ function DashboardPage() {
                             Nạp tiền
                         </Link>
                     </div>
-                    <div className="col-span-1 rounded shadow-custom-light p-2">
+
+                    {/* Tin đăng */}
+                    <div className="col-span-2 rounded shadow-custom-light p-2">
                         <div className="flex items-center">
                             <i>
                                 <BsFillPostcardFill />
                             </i>
                             <h2 className="roboto-bold ml-2">Tin đăng</h2>
                         </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                            <div className="col-span-1 flex flex-col items-center">
-                                <div className="">{active}</div>
-                                <p className="text-gray-400 mt-2">
-                                    Đang hiển thị
-                                </p>
+                        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
+                            <div>
+                                <div className="font-bold">{active}</div>
+                                <p className="text-gray-400">Đang hiển thị</p>
                             </div>
-                            <div className="ml-2col-span-1 flex flex-col items-center">
-                                <div className="">{pending}</div>
-                                <p className="text-gray-400 mt-2">
-                                    Đang chờ duyệt
-                                </p>
+                            <div>
+                                <div className="font-bold">{pending}</div>
+                                <p className="text-gray-400">Chờ duyệt</p>
                             </div>
-                            <div className="ml-2col-span-1 flex flex-col items-center">
-                                <div className="">{isCheckout}</div>
-                                <p className="text-gray-400 mt-2">
-                                    Chờ thanh toán
-                                </p>
+                            <div>
+                                <div className="font-bold">{isCheckout}</div>
+                                <p className="text-gray-400">Chờ thanh toán</p>
+                            </div>
+                            <div>
+                                <div className="font-bold">{decline}</div>
+                                <p className="text-gray-400">Từ chối</p>
+                            </div>
+                            <div>
+                                <div className="font-bold">{expired}</div>
+                                <p className="text-gray-400">Hết hạn</p>
+                            </div>
+                            <div>
+                                <div className="font-bold">{archived}</div>
+                                <p className="text-gray-400">Lưu trữ</p>
+                            </div>
+                            <div>
+                                <div className="font-bold">{deleted}</div>
+                                <p className="text-gray-400">Đã xóa</p>
                             </div>
                         </div>
                     </div>
-                </div>
-                <h1 className="roboto-bold mt-[1.25rem]">Thông tin</h1>
-                <div className="grid grid-cols-3 gap-4 w-full mt-3">
-                    <div className="pt-2 col-span-1 min-h-[15rem] shadow-custom-light flex flex-col">
-                        <div className="flex items-center px-2">
-                            <h3 className="roboto-bold flex-1">Thông báo</h3>
+
+                    {/* Thông báo */}
+                    <div className="col-span-1 rounded shadow-custom-light p-4 mt-2">
+                        <div className="flex items-center px-2 mb-2">
+                            <h3 className="roboto-bold">Thông báo</h3>
                         </div>
-                        <div className="flex-1 flex overflow-hidden mt-2 rounded border border-gray-200">
+                        <div className="w-full">
                             {loading ? (
                                 <div className="flex items-center justify-center w-full">
                                     <Spin size="large" />
@@ -147,7 +175,7 @@ function DashboardPage() {
                                 </div>
                             ) : (
                                 <>
-                                    <ul className="w-full max-h-[20rem] overflow-y-auto border-r border-gray-200">
+                                    <ul className="w-full max-h-[20rem] overflow-y-auto border rounded border-gray-200">
                                         {notify &&
                                             [...notify]
                                                 .sort(
@@ -253,6 +281,7 @@ function DashboardPage() {
                     </div>
                 </div>
             </div>
+
             <div className="mt-10">
                 <FooterPage />
             </div>

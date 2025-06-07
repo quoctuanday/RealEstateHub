@@ -23,6 +23,7 @@ import { Category } from '@/schema/Category';
 import FilterPostPage from '@/components/filterPostPage';
 import SearchPostPage from '@/components/searchPostPage';
 import Link from 'next/link';
+import { MdOutlineRemoveRedEye } from 'react-icons/md';
 
 function RentPage() {
     const { userLoginData, socket } = useUser();
@@ -227,6 +228,13 @@ function RentPage() {
                                                             })}
                                                         </span>
                                                     )}
+                                                    <div className="flex items-center ml-3">
+                                                        <MdOutlineRemoveRedEye />{' '}
+                                                        <span className="ml-1">
+                                                            {' '}
+                                                            {post.view}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <span className="mt-1 line-clamp-1 text-blue-400">
                                                     {post.location?.name}

@@ -49,6 +49,7 @@ const PostSchema = new Schema(
             type: String,
             required: true,
         },
+        view: { type: Number, default: 0 },
     },
     { timestamps: true }
 );
