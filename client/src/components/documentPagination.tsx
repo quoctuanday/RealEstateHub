@@ -1,72 +1,33 @@
-// components/PaginationComponent.tsx
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import { Pagination } from 'antd';
-import { getDocuments } from '@/api/api';
-import { useUser } from '@/store/store';
-import { Document } from '@/schema/Documents';
 
 interface PaginationComponentProps {
-    setDocuments: React.Dispatch<React.SetStateAction<Document[] | null>>;
-    setCurrentPages?: React.Dispatch<React.SetStateAction<number>>;
-    setPageSizes?: React.Dispatch<React.SetStateAction<number>>;
+    total: number;
+    current: number;
+    pageSize: number;
+    setQuery: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const DocumentsPaginationComponent: React.FC<PaginationComponentProps> = ({
-    setDocuments,
-    setCurrentPages,
-    setPageSizes,
+    total,
+    current,
+    pageSize,
+    setQuery,
 }) => {
-    const { socket } = useUser();
-
-    const [totalDocument, setTotalDocument] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
-
-    useEffect(() => {
-        const fetchDocuments = async (page: number, limit: number) => {
-            try {
-                const query = {
-                    page,
-                    limit,
-                };
-                const response = await getDocuments(query);
-                if (response) {
-                    const data = response.data;
-                    setDocuments(data.data);
-                    setTotalDocument(data.total);
-                }
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            }
-        };
-
-        fetchDocuments(currentPage, pageSize);
-        if (socket) {
-            socket.on('documents-update', () => {
-                fetchDocuments(currentPage, pageSize);
-            });
-            return () => {
-                socket.off('documents-update', () => {
-                    fetchDocuments(currentPage, pageSize);
-                });
-            };
-        }
-    }, [currentPage, pageSize, setDocuments, setTotalDocument, socket]);
-
-    const handlePageChange = (page: number, documentSize?: number) => {
-        setCurrentPage(page);
-        if (setCurrentPages) setCurrentPages(page);
-        if (documentSize) {
-            setPageSize(documentSize);
-            if (setPageSizes) setPageSizes(documentSize);
-        }
+    const handlePageChange = (page: number, pageSize?: number) => {
+        setQuery((prev: any) => ({
+            ...prev,
+            page,
+            limit: pageSize || prev.limit,
+        }));
     };
 
     return (
         <Pagination
-            current={currentPage}
+            current={current}
             pageSize={pageSize}
-            total={totalDocument}
+            total={total}
             onChange={handlePageChange}
             showSizeChanger
             pageSizeOptions={['5', '10', '20', '50']}

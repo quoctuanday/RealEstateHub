@@ -10,10 +10,10 @@ function FooterPage() {
 
         emailjs
             .sendForm(
-                'service_fsj8nyz', // serviceId
-                'template_sf911om', // templateId
+                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_KEY!, // serviceId
+                process.env.NEXT_PUBLIC_EMAILJS_TEMPLATEID!, // templateId
                 e.currentTarget,
-                'VnoibbmzVDBnpcdDL' // userId
+                process.env.NEXT_PUBLIC_EMAILJS_APIKEY! // userId
             )
             .then(
                 (result) => {

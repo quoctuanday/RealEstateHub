@@ -132,12 +132,23 @@ function LoginPage() {
                             </div>
                         </Button>
                     </div>
-                    <span>
-                        Đã có tài khoản?{' '}
-                        <Link href={'/register'} className="hover:underline">
-                            Đăng ký ngay.
+                    <div className="flex items-center justify-between">
+                        <span>
+                            Đã có tài khoản?{' '}
+                            <Link
+                                href={'/register'}
+                                className="hover:underline"
+                            >
+                                Đăng ký ngay.
+                            </Link>
+                        </span>
+                        <Link
+                            href="/home"
+                            className="hover:underline text-blue-400"
+                        >
+                            Ghé thăm với tư cách khách.
                         </Link>
-                    </span>
+                    </div>
                 </Form>
             </div>
         </div>

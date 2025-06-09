@@ -6,9 +6,10 @@ import PaginationNewsComponent from '@/components/paginationNews';
 import { News } from '@/schema/News';
 import dateConvert from '@/utils/convertDate';
 import { Button, Input, Modal, Spin } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
+import FilterByDate from '@/components/filterByDate';
 
 function ManageNewsPage() {
     const { Search } = Input;
@@ -17,18 +18,41 @@ function ManageNewsPage() {
     const [isCreate, setIsCreate] = useState(false);
     const [news, setNews] = useState<News[] | null>(null);
     const [selectedNews, setSelectedNews] = useState<News | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
     const [popupModal, setPopupModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [query, setQuery] = useState({
+        page: 1,
+        limit: 5,
+        search: '',
+    });
+    const [total, setTotal] = useState(0);
 
-    const handleSearch = async (value: string) => {
-        console.log(value);
-        const response = await getAllNews({ search: value });
-        if (response) {
-            const data = response.data;
-            setNews(data.data);
-        }
+    const handleSearch = (value: string) => {
+        setQuery((prev) => ({
+            ...prev,
+            search: value,
+            page: 1,
+        }));
     };
+
+    useEffect(() => {
+        const fetchNews = async () => {
+            setIsLoading(true);
+            try {
+                const res = await getAllNews(query);
+                if (res) {
+                    setNews(res.data.data);
+                    setTotal(res.data.total || 0);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNews();
+    }, [query]);
 
     return (
         <div className="">
@@ -50,6 +74,7 @@ function ManageNewsPage() {
                         Thêm tin tức
                     </Button>
                 </div>
+                {isFilter && <FilterByDate className="" setQuery={setQuery} />}
                 <NewsModal isCreate={isCreate} setIsCreate={setIsCreate} />
                 <NewsModal
                     isCreate={isEdit}
@@ -57,9 +82,8 @@ function ManageNewsPage() {
                     news={selectedNews}
                     isEdit={true}
                 />
-
-                {isFilter && <div className=""></div>}
             </div>
+
             <div className="w-full min-h-[30rem] bg-white">
                 <div className="grid grid-cols-9 roboto-bold">
                     <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
@@ -87,78 +111,73 @@ function ManageNewsPage() {
                 >
                     <NewsView news={selectedNews} />
                 </Modal>
-                {news && news.length > 0 ? (
+
+                {isLoading ? (
+                    <div className="flex items-center justify-center w-full h-[10rem]">
+                        <Spin />
+                    </div>
+                ) : news && news.length > 0 ? (
                     <div className="">
-                        {news.map((news, index) => (
+                        {news.map((n, index) => (
                             <div
                                 className="grid grid-cols-9  h-[3.75rem]"
-                                key={news._id}
+                                key={n._id}
                             >
                                 <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
-                                    {index +
-                                        1 +
-                                        ((currentPage || 1) - 1) *
-                                            (pageSize || 5)}
+                                    {index + 1 + (query.page - 1) * query.limit}
                                 </div>
-                                <div className="col-span-3  flex  items-center py-1 border-[1px]">
-                                    <span className="truncate">
-                                        {' '}
-                                        {news.title}
-                                    </span>
+                                <div className="col-span-3 flex items-center py-1 border-[1px]">
+                                    <span className="truncate">{n.title}</span>
                                 </div>
                                 <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
-                                    {news.userName}
+                                    {n.userName}
                                 </div>
                                 <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
-                                    {news.createdAt
-                                        ? dateConvert(news.createdAt)
+                                    {n.createdAt
+                                        ? dateConvert(n.createdAt)
                                         : ''}
                                 </div>
-
                                 <div className="col-span-1 flex justify-center items-center py-1 border-[1px]">
                                     <Button
                                         onClick={() => {
                                             setPopupModal(true);
-                                            setSelectedNews(news);
+                                            setSelectedNews(n);
                                         }}
-                                        variant="outlined"
-                                        color="blue"
                                         icon={<FaEye />}
-                                    ></Button>
+                                    />
                                     <Button
                                         onClick={() => {
-                                            setSelectedNews(news);
+                                            setSelectedNews(n);
                                             setIsEdit(true);
                                         }}
-                                        variant="outlined"
-                                        color="cyan"
                                         icon={<MdEdit />}
                                         className="ml-2"
-                                    ></Button>
+                                    />
                                     <Button
                                         onClick={async () => {
-                                            await forceDeletedNews(news._id);
+                                            await forceDeletedNews(n._id);
                                         }}
-                                        variant="outlined"
-                                        color="danger"
                                         icon={<FaTrash />}
                                         className="ml-2"
-                                    ></Button>
+                                        variant="outlined"
+                                        color="danger"
+                                    />
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="h-[3.75rem] w-full flex items-center justify-center ">
-                        <Spin />
+                    <div className="h-[5rem] flex items-center justify-center">
+                        Không có dữ liệu
                     </div>
                 )}
                 <div className="mt-5 flex items-center justify-center">
                     <PaginationNewsComponent
-                        setNews={setNews}
-                        setCurrentPages={setCurrentPage}
-                        setPageSizes={setPageSize}
-                    ></PaginationNewsComponent>
+                        total={total}
+                        current={query.page}
+                        pageSize={query.limit}
+                        setQuery={setQuery}
+                    />
                 </div>
             </div>
         </div>
