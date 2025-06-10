@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { Button, Form, FormProps, Input } from 'antd';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
 import { createUser } from '@/api/api';
@@ -112,18 +111,11 @@ function RegisterPage() {
     };
     return (
         <div className="w-full h-[100vh] bg-gradient-to-br from-[#3AEEF1] to-[#1495AF] flex items-center justify-center">
-            <div className="grid grid-cols-3 w-[950px] rounded-[25px] bg-[#E6F3FF] overflow-hidden">
-                <Image
-                    src={'/images/sunflower.jpg'}
-                    alt="ảnh bầu trời"
-                    width={400}
-                    height={400}
-                    className="col-span-1 w-full h-full object-cover object-center "
-                ></Image>
+            <div className=" w-[700px] rounded-[25px] bg-[#E6F3FF] overflow-hidden">
                 <Form
                     onFinish={handleFinish}
                     layout="vertical"
-                    className="col-span-2 bg-white  px-[5rem] py-[3rem]"
+                    className=" bg-white  px-[3rem] py-[1rem]"
                     validateMessages={validateMessages}
                 >
                     <h1 className="text-center roboto-bold text-2xl">

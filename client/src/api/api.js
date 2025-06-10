@@ -77,6 +77,10 @@ export const getAllUser = (data = {}) =>
 export const logout = () => api.get('/users/logout', { withCredentials: true });
 export const changePassword = (data) =>
     api.put('/users/changePassword', { data });
+export const forgotPassword = (data) =>
+    api.post('/users/forgotPassword', { data });
+export const resetPassword = (userId, data) =>
+    api.put(`/users/resetPassword/${userId}`, { data });
 export const createUser = (data) =>
     api.post('/users/createUser', {
         data,

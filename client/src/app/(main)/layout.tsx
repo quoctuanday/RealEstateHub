@@ -323,9 +323,20 @@ export default function MainLayout({
                         </Button>
                     </div>
                 ) : (
-                    <i className="text-[25px]">
-                        <CgProfile />
-                    </i>
+                    <div className="flex items-center">
+                        <Link className="mr-2 hover:underline" href={'/login'}>
+                            Đăng nhập
+                        </Link>
+                        <Link
+                            className="mr-2 hover:underline"
+                            href={'/register'}
+                        >
+                            Đăng ký
+                        </Link>
+                        <i className="text-[25px]">
+                            <CgProfile />
+                        </i>
+                    </div>
                 )}
             </div>
             <div className="">
