@@ -1,12 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { updateCheckout } from '@/api/api';
+import { getUser, updateCheckout } from '@/api/api';
+import { useUser } from '@/store/store';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 function RechargePage() {
+    const { setUserLoginData } = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const fetchInitialData = async () => {
+        try {
+            const response = await getUser();
+            if (response) {
+                const userData = JSON.stringify(response.data);
+                localStorage.setItem('userLoginData', userData);
+                const storedUser = localStorage.getItem('userLoginData');
+                if (storedUser) {
+                    setUserLoginData(JSON.parse(storedUser));
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         if (searchParams) {
             const fetchCallback = async () => {
@@ -22,6 +41,7 @@ function RechargePage() {
                             window.location.pathname
                         );
                     }
+                    await fetchInitialData();
                 } catch (error) {
                     console.error(error);
                 }

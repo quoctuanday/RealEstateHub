@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { getNotify, getPost, updateNotify } from '@/api/api';
+import {
+    getNotify,
+    getPost,
+    getTransactionHistory,
+    updateNotify,
+} from '@/api/api';
 import FooterPage from '@/components/footer';
 import TitleComponent from '@/components/title';
+import TransactionChart from '@/components/TransactionChart';
 import { Notify } from '@/schema/notification';
 import { useUser } from '@/store/store';
 import { Spin, Tag, Divider, Typography, Modal } from 'antd';
@@ -13,6 +20,9 @@ const { Title, Paragraph, Text } = Typography;
 
 function DashboardPage() {
     const { userLoginData } = useUser();
+    const [transactions, setTransactions] = useState<
+        { date: string; amount: number }[]
+    >([]);
     const [pending, setPending] = useState(0);
     const [active, setActive] = useState(0);
     const [decline, setDecline] = useState(0);
@@ -63,6 +73,7 @@ function DashboardPage() {
                     'deleted',
                 ],
                 isCheckout: false,
+                person: true,
             };
             const response = await getPost(query);
             if (response) {
@@ -77,6 +88,16 @@ function DashboardPage() {
                 console.log(counts);
             }
         };
+        const fetchTransactions = async () => {
+            const response = await getTransactionHistory();
+            if (response) {
+                const data = response.data.transactions.map((t: any) => ({
+                    date: new Date(t.createdAt).toLocaleDateString('vi-VN'),
+                    amount: t.amount,
+                }));
+                setTransactions(data);
+            }
+        };
 
         const fetchNotifications = async () => {
             setLoading(true);
@@ -88,7 +109,7 @@ function DashboardPage() {
             setLoading(false);
         };
 
-        Promise.all([fetchCounts(), fetchNotifications()]);
+        Promise.all([fetchCounts(), fetchNotifications(), fetchTransactions()]);
     }, []);
 
     return (
@@ -278,6 +299,10 @@ function DashboardPage() {
                                 </>
                             )}
                         </div>
+                    </div>
+                    <div className="col-span-2 rounded shadow-custom-light p-4 mt-2">
+                        <h3 className="roboto-bold mb-2">Lịch sử giao dịch</h3>
+                        <TransactionChart transactions={transactions} />
                     </div>
                 </div>
             </div>

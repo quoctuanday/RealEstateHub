@@ -6,6 +6,7 @@ const Category = require('../models/Category');
 const ViewPost = require('../models/ViewPost');
 const FavouritePost = require('../models/favouritePost');
 const { checkout } = require('../routes/user');
+const TransactionHistory = require('../models/TransactionHistory');
 
 function normalizeProvinceName(name) {
     return name
@@ -367,6 +368,10 @@ class PostController {
                         { $inc: { accountBalance: -amountToDeduct } },
                         { new: true }
                     );
+                    await TransactionHistory.create({
+                        userId: post.userId,
+                        amount: -amountToDeduct,
+                    });
                     return res.status(200).json({
                         message: 'Updated successfully',
                         post,
@@ -481,6 +486,34 @@ class PostController {
                 message: 'Lỗi khi lấy danh sách bài yêu thích',
                 error,
             });
+        }
+    }
+    async getTransactionHistory(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { startDate, endDate } = req.query;
+
+            const dateFilter = {};
+            if (startDate) {
+                dateFilter.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                dateFilter.$lte = new Date(endDate);
+            }
+
+            const filter = { userId };
+            if (Object.keys(dateFilter).length > 0) {
+                filter.createdAt = dateFilter;
+            }
+
+            const transactions = await TransactionHistory.find(filter)
+                .sort({ createdAt: 1 })
+                .select('amount createdAt -_id');
+
+            res.status(200).json({ transactions });
+        } catch (error) {
+            console.error('Error getting transaction history:', error);
+            res.status(500).json({ message: 'Internal server error', error });
         }
     }
 }

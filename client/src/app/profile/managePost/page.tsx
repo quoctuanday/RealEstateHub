@@ -26,7 +26,7 @@ function ManagePostpage() {
     const [query, setQuery] = useState({
         page: 1,
         limit: 5,
-        manageAdmin: true,
+        person: true,
     });
     const [total, setTotal] = useState(0);
     const [isLoading, setIsLoading] = useState(false);

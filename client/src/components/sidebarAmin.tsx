@@ -121,18 +121,21 @@ function SidebarAdmin() {
                         <LuList className="pr-1" />
                         Quản lí danh mục
                     </Link>
-                    <Link
-                        href={'/admin/statitical'}
-                        className={`${
-                            active == '/admin/statitical' && 'text-rootColor'
-                        } hover:text-rootColor mt-2 cursor-pointer flex items-center`}
-                        onClick={() => {
-                            handleClickPath('/admin/statitical');
-                        }}
-                    >
-                        <LuAlignEndHorizontal className="pr-1" />
-                        Thống kê
-                    </Link>
+                    {userLoginData?.role === 'admin' && (
+                        <Link
+                            href={'/admin/statitical'}
+                            className={`${
+                                active == '/admin/statitical' &&
+                                'text-rootColor'
+                            } hover:text-rootColor mt-2 cursor-pointer flex items-center`}
+                            onClick={() => {
+                                handleClickPath('/admin/statitical');
+                            }}
+                        >
+                            <LuAlignEndHorizontal className="pr-1" />
+                            Thống kê
+                        </Link>
+                    )}
                 </ul>
                 <h2 className="mt-3 text-rootColor">Thông tin tài khoản</h2>
                 <ul className="mt-3">

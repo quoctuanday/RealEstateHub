@@ -110,7 +110,7 @@ function SellPage() {
                 <main className="col-span-6 ">
                     <h1 className="roboto-bold text-xl">Mua bán nhà đất</h1>
                     <span className="mt-[1.25rem]">
-                        Hiện có {posts?.length} tin đăng.
+                        Hiện có {total} tin đăng.
                     </span>
 
                     <ul className="mt-[1.25rem]">

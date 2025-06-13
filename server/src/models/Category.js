@@ -1,4 +1,3 @@
-// models/Category.ts
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

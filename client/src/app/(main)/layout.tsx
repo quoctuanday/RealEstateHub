@@ -281,10 +281,16 @@ export default function MainLayout({
                                             </span>
                                         </Link>
                                     </li>
-                                    {userLoginData.role === 'admin' && (
+                                    {(userLoginData.role === 'admin' ||
+                                        userLoginData.role === 'moderator') && (
                                         <li className="px-4 py-2 hover:bg-hoverColor cursor-pointer border-b">
                                             <Link
-                                                href={'/admin/manageUsers'}
+                                                href={
+                                                    userLoginData.role ===
+                                                    'admin'
+                                                        ? '/admin/manageUsers'
+                                                        : '/admin/managePosts'
+                                                }
                                                 className="flex items-center "
                                             >
                                                 <i>

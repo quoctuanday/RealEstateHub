@@ -4,6 +4,11 @@ const postController = require('../controllers/PostController');
 const authenticateToken = require('../middleware/auth');
 const optionalAuthenticateToken = require('../middleware/optionalAuth');
 
+router.get(
+    '/transactionHistory',
+    authenticateToken,
+    postController.getTransactionHistory
+);
 router.post(
     '/addFavourite',
     authenticateToken,

@@ -105,10 +105,15 @@ export default function ProfileLayout({
                             <span className="">Nạp tiền</span>
                         </Link>
                     </li>
-                    {userLoginData?.role === 'admin' && (
+                    {(userLoginData?.role === 'admin' ||
+                        userLoginData?.role === 'moderator') && (
                         <li className="px-2 text-center py-2 hover:bg-hoverColor cursor-pointer border-b">
                             <Link
-                                href={'/admin/manageUsers'}
+                                href={
+                                    userLoginData.role === 'admin'
+                                        ? '/admin/manageUsers'
+                                        : '/admin/managePosts'
+                                }
                                 className="flex flex-col items-center hover:text-rootColor "
                             >
                                 <i className="text-[1.25rem] roboto-bold">

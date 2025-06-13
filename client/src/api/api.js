@@ -101,6 +101,8 @@ export const updatePost = (data, id) =>
 export const getPost = (data = {}) =>
     api.get('/posts/getPost', { params: data });
 export const getFavourite = () => api.get('/posts/getFavourite');
+export const getTransactionHistory = (data) =>
+    api.get('/posts/transactionHistory', { data });
 
 //Map
 export const getProvince = () => api_map.get('/p/');

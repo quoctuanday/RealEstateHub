@@ -2,6 +2,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const User = require('../models/User');
 const moment = require('moment-timezone');
+const TransactionHistory = require('../models/TransactionHistory');
 const {
     vnp_Api,
     vnp_Url,
@@ -112,19 +113,30 @@ class PaymentController {
 
         if (secureHash === signed) {
             var rspCode = vnp_Params['vnp_ResponseCode'];
-            const amount = vnp_Params['vnp_Amount'];
-            console.log(amount);
-            User.findByIdAndUpdate(
-                userId,
-                { $inc: { accountBalance: amount / 100 } },
-                { new: true }
-            )
-                .then((updatedUser) => {
-                    res.status(200).json({ RspCode: '00', Message: 'success' });
-                })
-                .catch((err) => {
-                    console.error('Error updating balance:', err);
+            const amount = vnp_Params['vnp_Amount'] / 100;
+            try {
+                const updatedUser = await User.findByIdAndUpdate(
+                    userId,
+                    { $inc: { accountBalance: amount } },
+                    { new: true }
+                );
+
+                await TransactionHistory.create({
+                    userId: userId,
+                    amount: amount,
                 });
+
+                res.status(200).json({ RspCode: '00', Message: 'success' });
+            } catch (err) {
+                console.error(
+                    'Error updating balance or creating history:',
+                    err
+                );
+                res.status(500).json({
+                    RspCode: '99',
+                    Message: 'Internal server error',
+                });
+            }
         } else {
             res.status(200).json({ RspCode: '97', Message: 'Fail checksum' });
         }
