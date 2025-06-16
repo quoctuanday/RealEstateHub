@@ -8,6 +8,7 @@ import { BsDownload } from 'react-icons/bs';
 import FilePreviewModal from '@/components/FileReviewModal';
 import DocumentsPaginationComponent from '@/components/documentPagination';
 import dateConvert from '@/utils/convertDate';
+import Link from 'next/link';
 
 const { Search } = Input;
 
@@ -22,7 +23,7 @@ function LegalDocumentsPage() {
 
     const [query, setQuery] = useState({
         page: 1,
-        limit: 5,
+        limit: 6,
         search: '',
     });
 
@@ -80,9 +81,12 @@ function LegalDocumentsPage() {
                                 {doc.title}
                             </h2>
                             <div className="my-auto">
-                                <p className="text-sm text-gray-600 mb-2">
+                                <Link
+                                    href={doc.sourceUrl}
+                                    className="text-sm text-gray-600 mb-2"
+                                >
                                     Nguồn: {doc.source}
-                                </p>
+                                </Link>
                                 <p className="text-xs text-gray-400 mb-4">
                                     Ngày tạo: {dateConvert(doc.createdAt)}
                                 </p>
