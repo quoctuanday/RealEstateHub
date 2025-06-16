@@ -53,7 +53,7 @@ class PaymentController {
             .toString(36)
             .substring(2, 7)
             .toUpperCase();
-        var orderId = randomStr + data.userId;
+        var orderId = randomStr + userID;
         var amount = data.amount;
         var bankCode = 'VNBANK';
 
@@ -88,9 +88,8 @@ class PaymentController {
 
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-        console.log('vnp_Params:', vnp_Params);
-        console.log('signData:', signData);
-        console.log('vnp_SecureHash:', signed);
+        console.log('vnpUrl:', vnpUrl);
+        console.log('vnp_TxnRef:', orderId);
 
         res.json({ vnpUrl: vnpUrl });
     }

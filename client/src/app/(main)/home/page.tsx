@@ -1,80 +1,41 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { getPost, getAllNews } from '@/api/api';
+import { serverGetPost, serverGetAllNews } from '@/api/serverApi';
+import BannerSearch from '@/components/searchBanner';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Suspense } from 'react';
+import dateConvert from '@/utils/convertDate';
 import { Post } from '@/schema/Post';
 import { News } from '@/schema/News';
-import { Button } from 'antd';
-import Link from 'next/link';
-import dateConvert from '@/utils/convertDate';
-import BannerSearch from '@/components/searchBanner';
+import HandleAccessToken from '@/app/(main)/home/handleAccessToken';
 
-function HomePage() {
-    const [sellPosts, setSellPosts] = useState<Post[]>([]);
-    const [rentPosts, setRentPosts] = useState<Post[]>([]);
-    const [news, setNews] = useState<News[]>([]);
-    const searchParams = useSearchParams();
-    const router = useRouter();
+export default async function HomePage() {
+    const [sellRes, rentRes, newsRes] = await Promise.all([
+        serverGetPost({
+            status: 'active',
+            isCheckout: true,
+            postType: 'sell',
+            limit: 6,
+        }),
+        serverGetPost({
+            status: 'active',
+            isCheckout: true,
+            postType: 'rent',
+            limit: 6,
+        }),
+        serverGetAllNews({ limit: 3 }),
+    ]);
 
-    useEffect(() => {
-        if (searchParams) {
-            const params = new URLSearchParams(searchParams);
-            const accessToken = params.get('accessToken');
-            if (accessToken) {
-                localStorage.setItem('token', accessToken);
-                window.history.replaceState(
-                    {},
-                    document.title,
-                    window.location.pathname
-                );
-            }
-        }
-    }, [searchParams]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [sellRes, rentRes, newsRes] = await Promise.all([
-                    getPost({
-                        status: 'active',
-                        isCheckout: true,
-                        postType: 'sell',
-                        limit: 6,
-                    }),
-                    getPost({
-                        status: 'active',
-                        isCheckout: true,
-                        postType: 'rent',
-                        limit: 6,
-                    }),
-                    getAllNews({ limit: 3 }),
-                ]);
-
-                setSellPosts(sellRes.data || []);
-                setRentPosts(rentRes.data || []);
-                setNews(newsRes.data.data || []);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchData();
-    }, []);
+    const sellPosts: Post[] = sellRes?.data || [];
+    const rentPosts: Post[] = rentRes?.data || [];
+    const news: News[] = newsRes?.data?.data || [];
 
     const renderPostList = (posts: Post[]) => (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => (
-                <div
+                <Link
+                    href={`/${post.postType}/${post._id}`}
                     key={post._id}
-                    className="border rounded-lg shadow hover:shadow-md transition p-3 cursor-pointer"
-                    onClick={() =>
-                        router.push(
-                            `/${post.postType === 'sell' ? 'sell' : 'rent'}/${
-                                post._id
-                            }`
-                        )
-                    }
+                    className="border rounded-lg shadow hover:shadow-md transition p-3 block"
                 >
                     <Image
                         src={post.images?.[0] || '/images/no-image.png'}
@@ -82,6 +43,7 @@ function HomePage() {
                         width={400}
                         height={200}
                         className="w-full h-[200px] object-cover rounded"
+                        sizes="(max-width: 768px) 100vw, 33vw"
                     />
                     <h3 className="mt-3 font-semibold text-base line-clamp-1">
                         {post.title}
@@ -92,19 +54,22 @@ function HomePage() {
                     <p className="text-sm text-orange-500 font-bold mt-1">
                         {post.price.toLocaleString()} VNĐ
                     </p>
-                </div>
+                </Link>
             ))}
         </div>
     );
 
     return (
         <>
+            <HandleAccessToken />
             <div
                 className="h-[250px] md:h-[400px] bg-cover bg-center bg-no-repeat relative mb-8"
                 style={{ backgroundImage: "url('/images/banner.webp')" }}
             >
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <BannerSearch />
+                    <Suspense fallback={<div>Đang tải tìm kiếm...</div>}>
+                        <BannerSearch />
+                    </Suspense>
                 </div>
             </div>
 
@@ -118,12 +83,12 @@ function HomePage() {
                         <h3 className="text-xl font-medium text-blue-600">
                             Mua bán
                         </h3>
-                        <button
+                        <Link
+                            href="/sell"
                             className="text-sm text-blue-600 hover:underline"
-                            onClick={() => router.push('/sell')}
                         >
                             Xem thêm
-                        </button>
+                        </Link>
                     </div>
                     {renderPostList(sellPosts)}
 
@@ -131,12 +96,12 @@ function HomePage() {
                         <h3 className="text-xl font-medium text-green-600">
                             Cho thuê
                         </h3>
-                        <button
+                        <Link
+                            href="/rent"
                             className="text-sm text-green-600 hover:underline"
-                            onClick={() => router.push('/rent')}
                         >
                             Xem thêm
-                        </button>
+                        </Link>
                     </div>
                     {renderPostList(rentPosts)}
                 </section>
@@ -150,7 +115,7 @@ function HomePage() {
                             <Link
                                 href={`/news/${item._id}`}
                                 key={item._id}
-                                className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer flex flex-col justify-between h-full"
+                                className="border rounded-lg p-4 hover:shadow-md transition flex flex-col justify-between h-full"
                             >
                                 <div>
                                     <Image
@@ -161,15 +126,14 @@ function HomePage() {
                                         width={300}
                                         height={200}
                                         className="w-full h-[200px] object-cover rounded"
+                                        sizes="(max-width: 768px) 100vw, 33vw"
                                     />
-
                                     <h3 className="mt-3 font-medium text-base line-clamp-2 min-h-[3rem]">
                                         {item.title}
                                     </h3>
                                 </div>
-
                                 <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-                                    <p className="">
+                                    <p>
                                         Người đăng:{' '}
                                         <span className="font-medium">
                                             {item.userName || 'Ẩn danh'}
@@ -188,17 +152,13 @@ function HomePage() {
                     <h3 className="text-lg font-semibold mb-2">
                         Bạn đang có phòng cần đăng?
                     </h3>
-                    <Button
-                        type="primary"
-                        onClick={() => router.push('/post')}
-                        size="large"
-                    >
-                        Đăng tin ngay
-                    </Button>
+                    <Link href="/post">
+                        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+                            Đăng tin ngay
+                        </button>
+                    </Link>
                 </div>
             </div>
         </>
     );
 }
-
-export default HomePage;

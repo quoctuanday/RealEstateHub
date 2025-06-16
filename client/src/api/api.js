@@ -51,7 +51,8 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
+        const statusCode = error.response?.status;
+        if (statusCode === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             const newAccessToken = await refreshAccessToken();
             localStorage.setItem('token', newAccessToken);
