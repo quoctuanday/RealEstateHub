@@ -1,8 +1,9 @@
 'use client';
 import { Notify } from '@/schema/notification';
-import { Empty, Modal, Tag, Typography, Divider, Card } from 'antd';
+import { Empty, Modal, Tag, Typography, Divider, Card, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { updateNotify } from '@/api/api';
+import { deleteNotify, updateNotify } from '@/api/api';
+import { FaRegTrashAlt } from 'react-icons/fa';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -85,6 +86,42 @@ export default function ModalNotification({
                                                 Chưa đọc
                                             </Tag>
                                         )}
+                                        <button
+                                            className="hover:text-red-500"
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                try {
+                                                    await deleteNotify(n._id);
+                                                    message.success(
+                                                        'Đã xóa thông báo'
+                                                    );
+
+                                                    setNotifications((prev) =>
+                                                        prev.filter(
+                                                            (item) =>
+                                                                item._id !==
+                                                                n._id
+                                                        )
+                                                    );
+
+                                                    if (
+                                                        selected?._id === n._id
+                                                    ) {
+                                                        setSelected(null);
+                                                    }
+                                                } catch (error) {
+                                                    console.error(
+                                                        'Lỗi khi xóa thông báo:',
+                                                        error
+                                                    );
+                                                    message.error(
+                                                        'Xóa thông báo thất bại'
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <FaRegTrashAlt />
+                                        </button>
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">
                                         {n.createdAt

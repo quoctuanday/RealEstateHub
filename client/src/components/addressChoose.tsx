@@ -1,5 +1,6 @@
 'use client';
-import { getProvince, getDistrict } from '@/api/api';
+
+import { getProvince } from '@/api/serverApi';
 import GoongMap from '@/components/mapBox';
 import { Button, Input, InputRef, Radio, Select } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
@@ -11,29 +12,13 @@ interface Props {
 }
 
 type Ward = {
-    code: number;
-    codename: string;
-    district_code: number;
-    division_type: string;
     name: string;
-};
-
-type District = {
-    code: number;
-    codename: string;
-    division_type: string;
-    name: string;
-    province_code: number;
-    wards: Ward[];
+    mergedFrom?: string[];
 };
 
 type Province = {
-    code: number;
-    codename: string;
-    districts: District[];
-    division_type: string;
-    name: string;
-    phone_code: number;
+    province: string;
+    wards: Ward[];
 };
 
 interface Adress {
@@ -45,60 +30,45 @@ interface Adress {
 }
 
 function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
+    const [provinces, setProvinces] = useState<Province[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
         null
     );
-    const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
-        null
-    );
     const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
-    const [filteredProvinces, setFilteredProvinces] = useState<Province[]>([]);
-    const [filteredDistricts, setFilteredDistricts] = useState<District[]>([]);
     const [address, setAddress] = useState('');
     const [addressForMap, setAddressForMap] = useState('');
     const addressPostRef = useRef<InputRef>(null);
 
     useEffect(() => {
-        const getData = async () => {
-            const response = await getProvince();
-            if (response) {
-                console.log(response.data);
-                setFilteredProvinces(response.data);
+        const fetchData = async () => {
+            const res = await getProvince();
+            if (res?.data?.data) {
+                setProvinces(res.data.data);
             }
         };
-        getData();
+        fetchData();
     }, []);
 
     useEffect(() => {
-        if (selectedProvince && selectedDistrict && selectedWard) {
-            setAddress(
-                `${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`
-            );
-            setAddressForMap(
-                `${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`
-            );
+        if (selectedProvince && selectedWard) {
+            const fullAddress = `${selectedWard.name}, ${selectedProvince.province}`;
+            setAddress(fullAddress);
+            setAddressForMap(fullAddress);
         }
-    }, [selectedProvince, selectedDistrict, selectedWard]);
+    }, [selectedProvince, selectedWard]);
 
-    useEffect(() => {
-        if (selectedProvince) {
-            const fetchDistricts = async () => {
-                const districtResponse = await getDistrict(
-                    selectedProvince.code
-                );
-                if (districtResponse) {
-                    setFilteredDistricts(districtResponse.data.districts);
-                    setSelectedDistrict(null);
-                    setSelectedWard(null);
-                }
-            };
-            fetchDistricts();
-        } else {
-            setFilteredDistricts([]);
-            setSelectedDistrict(null);
-            setSelectedWard(null);
+    const handleConfirm = () => {
+        if (addressPostRef.current) {
+            setAddressLocation({
+                name: addressPostRef.current.input?.value ?? '',
+                coordinates: {
+                    latitude: 0,
+                    longitude: 0,
+                },
+            });
+            setFormAddress(false);
         }
-    }, [selectedProvince]);
+    };
 
     return (
         <div className="fixed flex items-center justify-center top-0 bottom-0 left-0 right-0 z-30 roboto-regular text-[1rem]">
@@ -108,11 +78,11 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
             ></div>
             <div
                 className="relative appear w-[52rem] max-h-[40rem] overflow-y-auto overflow-hidden min-h-[16rem] bg-white rounded-[10px] shadow-custom-light p-[1rem]
-          [&::-webkit-scrollbar]:w-2
-          [&::-webkit-scrollbar-track]:rounded-[10px]
-          [&::-webkit-scrollbar-track]:bg-gray-100
-          [&::-webkit-scrollbar-thumb]:rounded-[10px]
-          [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:rounded-[10px]
+        [&::-webkit-scrollbar-track]:bg-gray-100
+        [&::-webkit-scrollbar-thumb]:rounded-[10px]
+        [&::-webkit-scrollbar-thumb]:bg-gray-300"
             >
                 <div className="border-b flex items-center justify-between pb-[1.25rem]">
                     <h1 className="roboto-bold text-[1.25rem]">Chọn địa chỉ</h1>
@@ -124,21 +94,20 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                         onClick={() => setFormAddress(false)}
                     />
                 </div>
+
+                {/* Province */}
                 <div className="mt-[1.25rem]">
-                    <h2 className="roboto-bold">Tỉnh/ Thành phố</h2>
+                    <h2 className="roboto-bold">Tỉnh / Thành phố</h2>
                     <Select
+                        className="w-full mt-1"
                         placeholder="Chọn tỉnh/thành"
-                        value={
-                            selectedProvince ? selectedProvince.code : undefined
-                        }
+                        value={selectedProvince?.province}
                         showSearch
-                        className="w-full mt-1"
                         onChange={(value) => {
-                            const selected = filteredProvinces.find(
-                                (p) => p.code === value
+                            const found = provinces.find(
+                                (p) => p.province === value
                             );
-                            setSelectedProvince(selected || null);
-                            setSelectedDistrict(null);
+                            setSelectedProvince(found || null);
                             setSelectedWard(null);
                         }}
                         optionFilterProp="search"
@@ -148,22 +117,17 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                                 .toLowerCase()
                                 .includes(input.toLowerCase());
                         }}
-                        options={filteredProvinces.map((province) => ({
-                            key: province.codename,
-                            value: province.code,
-                            search: province.name,
+                        options={provinces.map((province) => ({
+                            key: province.province,
+                            value: province.province,
+                            search: province.province,
                             label: (
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <span>{province.name}</span>
+                                <div className="flex justify-between">
+                                    <span>{province.province}</span>
                                     <Radio
                                         checked={
-                                            selectedProvince?.code ===
-                                            province.code
+                                            selectedProvince?.province ===
+                                            province.province
                                         }
                                     />
                                 </div>
@@ -171,106 +135,51 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                         }))}
                     />
                 </div>
-                <div className="mt-[1.25rem]">
-                    <h2 className="roboto-bold">Quận/ Huyện</h2>
-                    <Select
-                        placeholder="Chọn quận/ huyện"
-                        value={
-                            selectedDistrict ? selectedDistrict.code : undefined
-                        }
-                        showSearch
-                        className="w-full mt-1"
-                        onChange={(value) => {
-                            const selected = filteredDistricts.find(
-                                (d) => d.code === value
-                            );
-                            setSelectedDistrict(selected || null);
-                            setSelectedWard(null);
-                        }}
-                        optionFilterProp="search"
-                        filterOption={(input, option) => {
-                            if (!option?.search) return false;
-                            return (option.search as string)
-                                .toLowerCase()
-                                .includes(input.toLowerCase());
-                        }}
-                        options={filteredDistricts.map((district) => ({
-                            key: district.codename,
-                            value: district.code,
-                            search: district.name,
-                            label: (
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <span>{district.name}</span>
-                                    <Radio
-                                        checked={
-                                            selectedDistrict?.code ===
-                                            district.code
-                                        }
-                                    />
-                                </div>
-                            ),
-                        }))}
-                    />
-                </div>
-                <div className="mt-[1.25rem]">
-                    <h2 className="roboto-bold">Phường/ Xã</h2>
-                    <Select
-                        placeholder="Chọn phường/ xã"
-                        value={selectedWard ? selectedWard.code : undefined}
-                        showSearch
-                        className="w-full mt-1"
-                        onChange={(value) => {
-                            if (selectedDistrict) {
-                                const selected = selectedDistrict.wards.find(
-                                    (w) => w.code === value
+
+                {/* Ward */}
+                {selectedProvince && (
+                    <div className="mt-[1.25rem]">
+                        <h2 className="roboto-bold">Phường / Xã</h2>
+                        <Select
+                            className="w-full mt-1"
+                            placeholder="Chọn phường/xã"
+                            value={selectedWard?.name}
+                            showSearch
+                            onChange={(value) => {
+                                const found = selectedProvince.wards.find(
+                                    (w) => w.name === value
                                 );
-                                setSelectedWard(selected || null);
-                            }
-                        }}
-                        optionFilterProp="search"
-                        filterOption={(input, option) => {
-                            if (!option?.search) return false;
-                            return (option.search as string)
-                                .toLowerCase()
-                                .includes(input.toLowerCase());
-                        }}
-                        options={
-                            selectedDistrict
-                                ? selectedDistrict.wards.map((ward) => ({
-                                      key: ward.codename,
-                                      value: ward.code,
-                                      search: ward.name,
-                                      label: (
-                                          <div
-                                              style={{
-                                                  display: 'flex',
-                                                  justifyContent:
-                                                      'space-between',
-                                              }}
-                                          >
-                                              <span>{ward.name}</span>
-                                              <Radio
-                                                  checked={
-                                                      selectedWard?.code ===
-                                                      ward.code
-                                                  }
-                                              />
-                                          </div>
-                                      ),
-                                  }))
-                                : []
-                        }
-                    />
-                </div>
+                                setSelectedWard(found || null);
+                            }}
+                            optionFilterProp="search"
+                            filterOption={(input, option) => {
+                                if (!option?.search) return false;
+                                return (option.search as string)
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase());
+                            }}
+                            options={selectedProvince.wards.map((ward) => ({
+                                key: ward.name,
+                                value: ward.name,
+                                search: ward.name,
+                                label: (
+                                    <div className="flex justify-between">
+                                        <span>{ward.name}</span>
+                                        <Radio
+                                            checked={
+                                                selectedWard?.name === ward.name
+                                            }
+                                        />
+                                    </div>
+                                ),
+                            }))}
+                        />
+                    </div>
+                )}
+
+                {/* Hiển thị địa chỉ */}
                 <div className="mt-[1.25rem]">
-                    <h2 className="roboto-bold">
-                        Địa chỉ hiển thị trên tin đăng
-                    </h2>
+                    <h2 className="roboto-bold">Địa chỉ hiển thị</h2>
                     <Input
                         ref={addressPostRef}
                         value={address}
@@ -286,8 +195,10 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                             }));
                         }}
                         placeholder="Địa chỉ hiển thị"
-                    ></Input>
+                    />
                 </div>
+
+                {/* Bản đồ nếu có */}
                 {addressForMap && (
                     <div className="mt-[1.25rem]">
                         <GoongMap
@@ -297,26 +208,12 @@ function AddressChoose({ setFormAddress, setAddressLocation }: Props) {
                     </div>
                 )}
 
+                {/* Nút xác nhận */}
                 <Button
                     type="primary"
                     htmlType="button"
                     className="mt-2"
-                    onClick={() => {
-                        if (addressPostRef.current) {
-                            setAddressLocation((prev) => ({
-                                name:
-                                    addressPostRef.current?.input?.value ?? '',
-                                coordinates: {
-                                    latitude:
-                                        prev?.coordinates.latitude ?? 21.028,
-                                    longitude:
-                                        prev?.coordinates.longitude ??
-                                        105.83991,
-                                },
-                            }));
-                            setFormAddress(false);
-                        }
-                    }}
+                    onClick={handleConfirm}
                 >
                     Xác nhận
                 </Button>

@@ -6,6 +6,7 @@ const cateSocket = require('./CateSocket');
 const newsSocket = require('./NewsSocket');
 const documentsSocket = require('./DocumentSocket');
 const favouriteSocket = require('./FavouriteSocket');
+const notificationSocket = require('./Notification');
 
 function configureWebSocket(server) {
     const io = new Server(server, {
@@ -24,6 +25,7 @@ function configureWebSocket(server) {
     newsSocket(io);
     documentsSocket(io);
     favouriteSocket(io);
+    notificationSocket(io);
 
     io.on('connection', (socket) => {
         console.log('A user connected');

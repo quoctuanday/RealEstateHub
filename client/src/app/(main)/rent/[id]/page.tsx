@@ -1,5 +1,11 @@
-import PostDetailContent from './RentDetailContent';
+import PostRentDetailPage from '@/app/(main)/rent/[id]/RentDetailContent';
 
-export default function PostDetailPage({ params }: { params: { id: string } }) {
-    return <PostDetailContent id={params.id} />;
+export default async function Page({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    return <PostRentDetailPage id={id} />;
 }

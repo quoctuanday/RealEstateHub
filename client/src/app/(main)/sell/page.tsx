@@ -5,7 +5,6 @@ import { Button, message, Spin, Tooltip } from 'antd';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import formatTimeDifference from '@/utils/format-time';
-import maskPhoneNumber from '@/utils/hidePhoneNumber';
 import {
     FaHeart,
     FaImage,
@@ -31,7 +30,6 @@ function SellPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<Category[] | null>(null);
     const [selectedChildCates, setSelectedChildCates] = useState<string[]>([]);
-    const [isPhoneHidden, setIsPhoneHidden] = useState(true);
 
     const [query, setQuery] = useState({
         page: 1,
@@ -282,23 +280,8 @@ function SellPage() {
                                                         variant="solid"
                                                         color="blue"
                                                         icon={<FaPhone />}
-                                                        onClick={() => {
-                                                            if (userLoginData) {
-                                                                setIsPhoneHidden(
-                                                                    false
-                                                                );
-                                                            } else {
-                                                                message.warning(
-                                                                    'Bạn cần đăng nhập để xem số điện thoại'
-                                                                );
-                                                            }
-                                                        }}
                                                     >
-                                                        {isPhoneHidden
-                                                            ? maskPhoneNumber(
-                                                                  post.phoneNumber
-                                                              )
-                                                            : post.phoneNumber}
+                                                        {post.phoneNumber}
                                                     </Button>
                                                     <Button
                                                         onClick={async () => {

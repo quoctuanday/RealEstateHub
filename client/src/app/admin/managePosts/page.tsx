@@ -144,6 +144,7 @@ function ManagePostsPage() {
                                     {post.status === 'archived' &&
                                         'Được lưu trữ'}
                                     {post.status === 'deleted' && 'Đã xóa'}
+                                    {post.status === 'expired' && 'Hết hạn'}
                                 </div>
                                 <div className="col-span-2 flex justify-center items-center py-1 border-[1px]">
                                     {post.isCheckout

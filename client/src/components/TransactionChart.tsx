@@ -49,7 +49,7 @@ const TransactionChart: React.FC<TransactionChartProps> = ({
         labels: dataForChart.map((d) => d.date),
         datasets: [
             {
-                label: 'Số dư tích lũy (VND)',
+                label: 'Số dư biến động (VND)',
                 data: dataForChart.map((d) => d.balance),
                 borderColor: 'rgba(75,192,192,1)',
                 backgroundColor: 'rgba(75,192,192,0.2)',

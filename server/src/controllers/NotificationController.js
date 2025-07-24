@@ -36,5 +36,27 @@ class Notification {
                 res.status(500).json({ message: 'Internal Server Error' });
             });
     }
+    async delete(req, res) {
+        try {
+            const notifyId = req.params.id;
+
+            const result = await Notify.deleteOne({ _id: notifyId });
+
+            if (result.deletedCount === 0) {
+                return res
+                    .status(404)
+                    .json({ message: 'Thông báo không tồn tại' });
+            }
+
+            return res
+                .status(200)
+                .json({ message: 'Xóa thông báo thành công' });
+        } catch (error) {
+            console.error('Lỗi khi xóa thông báo:', error);
+            return res
+                .status(500)
+                .json({ message: 'Lỗi server khi xóa thông báo' });
+        }
+    }
 }
 module.exports = new Notification();

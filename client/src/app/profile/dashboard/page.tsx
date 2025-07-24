@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import {
+    deleteNotify,
     getNotify,
     getPost,
     getTransactionHistory,
@@ -11,12 +12,14 @@ import TitleComponent from '@/components/title';
 import TransactionChart from '@/components/TransactionChart';
 import { Notify } from '@/schema/notification';
 import { useUser } from '@/store/store';
-import { Spin, Tag, Divider, Typography, Modal } from 'antd';
+import { Spin, Tag, Divider, Typography, Modal, message } from 'antd';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { BsFillPostcardFill } from 'react-icons/bs';
-import { FaCoins } from 'react-icons/fa';
+import { FaCoins, FaRegTrashAlt } from 'react-icons/fa';
 const { Title, Paragraph, Text } = Typography;
+import { DatePicker } from 'antd';
+const { RangePicker } = DatePicker;
 
 function DashboardPage() {
     const { userLoginData } = useUser();
@@ -35,6 +38,10 @@ function DashboardPage() {
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedNotify, setSelectedNotify] = useState<Notify | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [dateRange, setDateRange] = useState<[string | null, string | null]>([
+        null,
+        null,
+    ]);
 
     const handleSelectNotify = async (item: Notify) => {
         setSelectedNotify(item);
@@ -88,16 +95,6 @@ function DashboardPage() {
                 console.log(counts);
             }
         };
-        const fetchTransactions = async () => {
-            const response = await getTransactionHistory();
-            if (response) {
-                const data = response.data.transactions.map((t: any) => ({
-                    date: new Date(t.createdAt).toLocaleDateString('vi-VN'),
-                    amount: t.amount,
-                }));
-                setTransactions(data);
-            }
-        };
 
         const fetchNotifications = async () => {
             setLoading(true);
@@ -109,8 +106,28 @@ function DashboardPage() {
             setLoading(false);
         };
 
-        Promise.all([fetchCounts(), fetchNotifications(), fetchTransactions()]);
+        Promise.all([fetchCounts(), fetchNotifications()]);
     }, []);
+
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            const params: any = {};
+            if (dateRange[0]) params.startDate = dateRange[0];
+            if (dateRange[1]) params.endDate = dateRange[1];
+
+            const response = await getTransactionHistory(params);
+            if (response) {
+                const data = response.data.transactions.map((t: any) => ({
+                    date: new Date(t.createdAt).toLocaleDateString('vi-VN'),
+                    amount: t.amount,
+                }));
+                console.log('data co su thay doi', data);
+                setTransactions(data);
+            }
+        };
+
+        fetchTransactions();
+    }, [dateRange]);
 
     return (
         <div className="mt-[1.25rem]">
@@ -235,6 +252,54 @@ function DashboardPage() {
                                                                     Chưa đọc
                                                                 </Tag>
                                                             )}
+                                                            <button
+                                                                className="hover:text-red-500"
+                                                                onClick={async (
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    try {
+                                                                        await deleteNotify(
+                                                                            item._id
+                                                                        );
+                                                                        message.success(
+                                                                            'Đã xóa thông báo'
+                                                                        );
+
+                                                                        setNotify(
+                                                                            (
+                                                                                prev
+                                                                            ) =>
+                                                                                prev.filter(
+                                                                                    (
+                                                                                        thisItem
+                                                                                    ) =>
+                                                                                        thisItem._id !==
+                                                                                        item._id
+                                                                                )
+                                                                        );
+
+                                                                        if (
+                                                                            selectedNotify?._id ===
+                                                                            item._id
+                                                                        ) {
+                                                                            setSelectedNotify(
+                                                                                null
+                                                                            );
+                                                                        }
+                                                                    } catch (error) {
+                                                                        console.error(
+                                                                            'Lỗi khi xóa thông báo:',
+                                                                            error
+                                                                        );
+                                                                        message.error(
+                                                                            'Xóa thông báo thất bại'
+                                                                        );
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <FaRegTrashAlt />
+                                                            </button>
                                                         </div>
                                                         <p className="text-xs text-gray-400 mt-1">
                                                             {item.createdAt
@@ -301,7 +366,18 @@ function DashboardPage() {
                         </div>
                     </div>
                     <div className="col-span-2 rounded shadow-custom-light p-4 mt-2">
-                        <h3 className="roboto-bold mb-2">Lịch sử giao dịch</h3>
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="roboto-bold">Lịch sử giao dịch</h3>
+                            <RangePicker
+                                format="YYYY-MM-DD"
+                                onChange={(dates, dateStrings) => {
+                                    setDateRange([
+                                        dateStrings[0] || null,
+                                        dateStrings[1] || null,
+                                    ]);
+                                }}
+                            />
+                        </div>
                         <TransactionChart transactions={transactions} />
                     </div>
                 </div>

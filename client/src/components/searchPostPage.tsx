@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { getDistrict, getProvince } from '@/api/api';
+import { getProvince } from '@/api/serverApi';
 import { Select, Popover, Input } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
-interface District {
-    code: number;
+interface Ward {
     name: string;
+    mergedFrom?: string[];
 }
 
 interface Province {
-    code: number;
-    name: string;
-    districts: District[];
+    province: string;
+    wards: Ward[];
 }
 
 interface Props {
@@ -25,35 +24,23 @@ const SearchPostPage: React.FC<Props> = ({ setQuery }) => {
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
         null
     );
-    const [districtData, setDistrictData] = useState<District[]>([]);
-    const [selectedDistrict, setSelectedDistrict] = useState<
-        string | undefined
-    >();
+    const [wardData, setWardData] = useState<Ward[]>([]);
+    const [selectedWard, setSelectedWard] = useState<string | undefined>();
     const [showPopover, setShowPopover] = useState(false);
-
-    const fetchDistricts = async (provinceCode: number) => {
-        try {
-            const districtResponse = await getDistrict(provinceCode);
-            if (districtResponse) {
-                setDistrictData(districtResponse.data.districts);
-            }
-        } catch (error) {
-            console.error('Failed to fetch districts:', error);
-        }
-    };
 
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
                 const response = await getProvince();
-                if (response) {
-                    setProvinceData(response.data);
-                    const defaultProvince = response.data.find(
-                        (p: Province) => p.name === 'Hà Nội'
+                if (response?.data) {
+                    setProvinceData(response.data.data);
+
+                    const defaultProvince = response.data.data.find(
+                        (p: Province) => p.province === 'Hà Nội'
                     );
                     if (defaultProvince) {
                         setSelectedProvince(defaultProvince);
-                        await fetchDistricts(defaultProvince.code);
+                        setWardData(defaultProvince.wards);
                     }
                 }
             } catch (error) {
@@ -64,10 +51,12 @@ const SearchPostPage: React.FC<Props> = ({ setQuery }) => {
     }, []);
 
     const applySearch = () => {
+        const cleanedWard =
+            selectedWard?.replace(/^(Phường|Xã|Thị trấn)\s+/i, '') || '';
         setQuery((prev: any) => ({
             ...prev,
-            province: selectedProvince?.name,
-            district: selectedDistrict,
+            province: selectedProvince?.province,
+            district: cleanedWard,
             page: 1,
         }));
         setShowPopover(false);
@@ -81,34 +70,34 @@ const SearchPostPage: React.FC<Props> = ({ setQuery }) => {
             <Select
                 showSearch
                 className="w-full mb-3"
-                value={selectedProvince?.code}
+                value={selectedProvince?.province}
                 onChange={(value) => {
-                    const province = provinceData.find((p) => p.code === value);
+                    const province = provinceData.find(
+                        (p) => p.province === value
+                    );
                     setSelectedProvince(province || null);
-                    setSelectedDistrict(undefined);
-                    if (province) fetchDistricts(province.code);
+                    setSelectedWard(undefined);
+                    if (province) setWardData(province.wards);
                 }}
-            >
-                {provinceData.map((province) => (
-                    <Select.Option key={province.code} value={province.code}>
-                        {province.name}
-                    </Select.Option>
-                ))}
-            </Select>
+                options={provinceData.map((p) => ({
+                    label: p.province,
+                    value: p.province,
+                }))}
+            />
 
-            <span className="block mb-1 font-medium">Chọn quận / huyện:</span>
+            <span className="block mb-1 font-medium">Chọn phường / xã:</span>
             <div className="grid grid-cols-3 gap-2 max-h-[200px] overflow-auto text-sm text-gray-800">
-                {districtData.map((district) => (
+                {wardData.map((ward, index) => (
                     <div
-                        key={district.code}
+                        key={index}
                         className={`cursor-pointer hover:underline ${
-                            selectedDistrict === district.name
+                            selectedWard === ward.name
                                 ? 'text-blue-600 font-medium'
                                 : ''
                         }`}
-                        onClick={() => setSelectedDistrict(district.name)}
+                        onClick={() => setSelectedWard(ward.name)}
                     >
-                        {district.name}
+                        {ward.name}
                     </div>
                 ))}
             </div>
@@ -140,16 +129,16 @@ const SearchPostPage: React.FC<Props> = ({ setQuery }) => {
                         className="w-full"
                         placeholder="Tìm kiếm bài đăng..."
                         onClick={() => setShowPopover(true)}
-                        value={selectedDistrict || ''}
+                        value={selectedWard || ''}
                         onChange={(e) => {
                             const value = e.target.value;
                             if (!value) {
-                                setSelectedDistrict(undefined);
+                                setSelectedWard(undefined);
                                 setSelectedProvince(null);
-                                setDistrictData([]);
+                                setWardData([]);
                                 setQuery((prev: any) => ({
                                     ...prev,
-                                    district: undefined,
+                                    ward: undefined,
                                     province: undefined,
                                     page: 1,
                                 }));

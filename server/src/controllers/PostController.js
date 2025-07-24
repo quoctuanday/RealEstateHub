@@ -170,6 +170,7 @@ async function applyPaginationAndFetchPosts(
     const [posts, total] = await Promise.all([
         Post.find(filterQuery)
             .populate('userId', 'image')
+            // .sort({ createdAt: -1, rate: -1 })
             .skip(skip)
             .limit(limitNumber),
         Post.countDocuments(filterQuery),
@@ -278,7 +279,7 @@ class PostController {
 
             await updateExpiredPosts();
             await sendExpireNotifications();
-
+            //
             let baseFilter = buildBaseFilter(req.query, userId, isManageAdmin);
 
             if (childCate) {
@@ -492,6 +493,7 @@ class PostController {
         try {
             const userId = req.user.userId;
             const { startDate, endDate } = req.query;
+            console.log(startDate, endDate);
 
             const dateFilter = {};
             if (startDate) {

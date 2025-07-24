@@ -29,39 +29,53 @@ export default async function HomePage() {
     const rentPosts: Post[] = rentRes?.data || [];
     const news: News[] = newsRes?.data?.data || [];
 
-    const renderPostList = (posts: Post[]) => (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-                <Link
-                    href={`/${post.postType}/${post._id}`}
-                    key={post._id}
-                    className="border rounded-lg shadow hover:shadow-md transition p-3 block"
-                >
-                    <Image
-                        src={post.images?.[0] || '/images/no-image.png'}
-                        alt={post.title}
-                        width={400}
-                        height={200}
-                        className="w-full h-[200px] object-cover rounded"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                    <h3 className="mt-3 font-semibold text-base line-clamp-1">
-                        {post.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 line-clamp-1">
-                        {post.location?.name}
-                    </p>
-                    <p className="text-sm text-orange-500 font-bold mt-1">
-                        {post.price.toLocaleString()} VNĐ
-                    </p>
-                </Link>
-            ))}
-        </div>
-    );
+    const renderPostList = (posts: Post[]) => {
+        const topPosts = posts
+            .sort((a, b) => {
+                if (b.view !== a.view) return b.view - a.view;
+                if (b.rate !== a.rate) return b.rate - a.rate;
+                return (
+                    new Date(b.createdAt || '').getTime() -
+                    new Date(a.createdAt || '').getTime()
+                );
+            })
+            .slice(0, 6);
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {topPosts.map((post) => (
+                    <Link
+                        href={`/${post.postType}/${post._id}`}
+                        key={post._id}
+                        className="border rounded-lg shadow hover:shadow-md transition p-3 block"
+                    >
+                        <Image
+                            src={post.images?.[0] || '/images/no-image.png'}
+                            alt={post.title}
+                            width={400}
+                            height={200}
+                            className="w-full h-[200px] object-cover rounded"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                        <h3 className="mt-3 font-semibold text-base line-clamp-1">
+                            {post.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 line-clamp-1">
+                            {post.location?.name}
+                        </p>
+                        <p className="text-sm text-orange-500 font-bold mt-1">
+                            {post.price.toLocaleString()} VNĐ
+                        </p>
+                    </Link>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <>
-            <HandleAccessToken />
+            <Suspense fallback={<div>Đang tải tìm kiếm...</div>}>
+                <HandleAccessToken />
+            </Suspense>
             <div
                 className="h-[250px] md:h-[400px] bg-cover bg-center bg-no-repeat relative mb-8"
                 style={{ backgroundImage: "url('/images/banner.webp')" }}

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const moment = require('moment-timezone');
 const TransactionHistory = require('../models/TransactionHistory');
+const Notification = require('../models/Notification');
 const {
     vnp_Api,
     vnp_Url,
@@ -114,7 +115,7 @@ class PaymentController {
             var rspCode = vnp_Params['vnp_ResponseCode'];
             const amount = vnp_Params['vnp_Amount'] / 100;
             try {
-                const updatedUser = await User.findByIdAndUpdate(
+                await User.findByIdAndUpdate(
                     userId,
                     { $inc: { accountBalance: amount } },
                     { new: true }
@@ -123,6 +124,13 @@ class PaymentController {
                 await TransactionHistory.create({
                     userId: userId,
                     amount: amount,
+                });
+                await Notification.create({
+                    userId: userId,
+                    title: 'Nạp tiền thành công',
+                    message: `Tài khoản của bạn đã được cộng ${amount.toLocaleString(
+                        'vi-VN'
+                    )} VNĐ.`,
                 });
 
                 res.status(200).json({ RspCode: '00', Message: 'success' });

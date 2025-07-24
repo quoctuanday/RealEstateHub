@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({ baseURL: process.env.NEXT_PUBLIC_SERVER_URL });
-const api_map = axios.create({ baseURL: 'https://provinces.open-api.vn/api' });
+const api_map = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_SERVER_MAP_API,
+    timeout: 10000,
+});
 export default api;
 
 async function refreshAccessToken() {
@@ -102,12 +105,11 @@ export const updatePost = (data, id) =>
 export const getPost = (data = {}) =>
     api.get('/posts/getPost', { params: data });
 export const getFavourite = () => api.get('/posts/getFavourite');
-export const getTransactionHistory = (data) =>
-    api.get('/posts/transactionHistory', { data });
+export const getTransactionHistory = (params) =>
+    api.get('/posts/transactionHistory', { params: params });
 
 //Map
-export const getProvince = () => api_map.get('/p/');
-export const getDistrict = (code) => api_map.get(`/p/${code}?depth=3`);
+export const getProvince = () => api_map.get('/api/vietnamprovince');
 
 //ChatGPT
 export const generateTitle = (data) =>
@@ -117,6 +119,7 @@ export const generateTitle = (data) =>
 export const getNotify = () => api.get('/notification/get');
 export const updateNotify = (id, data) =>
     api.put(`/notification/update/${id}`, { data });
+export const deleteNotify = (id) => api.delete(`/notification/delete/${id}`);
 
 //Category
 export const createCategory = (data) => api.post('/category/create', { data });

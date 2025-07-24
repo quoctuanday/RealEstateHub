@@ -1,53 +1,46 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getDistrict, getProvince } from '@/api/api';
+import { getProvince } from '@/api/api';
 import { useRouter } from 'next/navigation';
 import { Select, Button } from 'antd';
 
-interface Province {
-    code: number;
+interface Ward {
     name: string;
+    mergedFrom?: string[];
 }
 
-interface District {
-    code: number;
-    name: string;
+interface Province {
+    province: string;
+    wards: Ward[];
 }
 
 export default function BannerSearch() {
     const router = useRouter();
     const [postType, setPostType] = useState<'sell' | 'rent'>('sell');
     const [provinces, setProvinces] = useState<Province[]>([]);
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [provinceCode, setProvinceCode] = useState<number | null>(null);
-    const [districtName, setDistrictName] = useState<string>('');
+    const [provinceName, setProvinceName] = useState<string>('');
+    const [wards, setWards] = useState<Ward[]>([]);
+    const [wardName, setWardName] = useState<string>('');
 
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvince();
-            if (res) setProvinces(res.data);
+            if (res?.data) setProvinces(res.data.data);
         };
         fetchProvinces();
     }, []);
 
     useEffect(() => {
-        const fetchDistricts = async () => {
-            if (!provinceCode) return;
-            const res = await getDistrict(provinceCode);
-            if (res) setDistricts(res.data.districts);
-        };
-        fetchDistricts();
-    }, [provinceCode]);
+        if (!provinceName) return;
+        const selected = provinces.find((p) => p.province === provinceName);
+        setWards(selected ? selected.wards : []);
+        setWardName('');
+    }, [provinceName, provinces]);
 
     const handleSearch = () => {
         const query = new URLSearchParams();
-        if (districtName) query.set('district', districtName);
-        if (provinceCode) {
-            const selectedProvince = provinces.find(
-                (p) => p.code === provinceCode
-            );
-            if (selectedProvince) query.set('province', selectedProvince.name);
-        }
+        if (provinceName) query.set('province', provinceName);
+        if (wardName) query.set('district', wardName);
         router.push(`/${postType}?${query.toString()}`);
     };
 
@@ -65,27 +58,24 @@ export default function BannerSearch() {
             <Select
                 showSearch
                 placeholder="Chọn tỉnh / thành phố"
-                value={provinceCode || undefined}
-                onChange={(value) => {
-                    setProvinceCode(value);
-                    setDistrictName('');
-                }}
+                value={provinceName || undefined}
+                onChange={(value) => setProvinceName(value)}
                 className="w-full"
                 options={provinces.map((p) => ({
-                    label: p.name,
-                    value: p.code,
+                    label: p.province,
+                    value: p.province,
                 }))}
             />
             <Select
                 showSearch
-                placeholder="Chọn quận / huyện"
-                value={districtName || undefined}
-                onChange={(value) => setDistrictName(value)}
+                placeholder="Chọn phường / xã"
+                value={wardName || undefined}
+                onChange={(value) => setWardName(value)}
                 className="w-full"
-                disabled={!districts.length}
-                options={districts.map((d) => ({
-                    label: d.name,
-                    value: d.name,
+                disabled={!wards.length}
+                options={wards.map((w) => ({
+                    label: w.name,
+                    value: w.name,
                 }))}
             />
             <Button type="primary" onClick={handleSearch}>

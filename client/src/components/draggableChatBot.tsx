@@ -50,7 +50,9 @@ export default function DraggableChatbot() {
         if (res) {
             const data = await res.data;
             console.log(data);
-            const botText = data.reply || 'Tôi không biết';
+            const botText =
+                data.reply ||
+                'Hiện tại tôi chưa có câu trả lời cho câu hỏi này, nhưng tôi sẽ ghi nhận để cải thiện trong tương lai.';
             setMessages((prev) => [...prev, { sender: 'bot', text: botText }]);
             setInput('');
         }

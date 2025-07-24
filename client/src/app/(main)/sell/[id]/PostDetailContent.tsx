@@ -7,8 +7,7 @@ import MapView from '@/components/map';
 import { Post } from '@/schema/Post';
 import { useUser } from '@/store/store';
 import dateConvert from '@/utils/convertDate';
-import maskPhoneNumber from '@/utils/hidePhoneNumber';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaPhone } from 'react-icons/fa';
@@ -16,7 +15,6 @@ import { IoIosPricetags } from 'react-icons/io';
 
 function PostDetailPage({ id }: { id: string }) {
     const [post, setPost] = useState<Post | null>(null);
-    const [isPhoneHidden, setIsPhoneHidden] = useState(true);
     const { socket, userLoginData } = useUser();
     const [loading, setLoading] = useState(true);
     const [showDirection, setShowDirection] = useState(false);
@@ -266,23 +264,8 @@ function PostDetailPage({ id }: { id: string }) {
                         <span className="ml-3">{post?.userName}</span>
                     </div>
                     <div className="flex flex-col items-center justify-center p-3">
-                        <Button
-                            variant="solid"
-                            color="blue"
-                            icon={<FaPhone />}
-                            onClick={() => {
-                                if (userLoginData) {
-                                    setIsPhoneHidden(false);
-                                } else {
-                                    message.warning(
-                                        'Bạn cần đăng nhập để xem số điện thoại'
-                                    );
-                                }
-                            }}
-                        >
-                            {isPhoneHidden
-                                ? maskPhoneNumber(post?.phoneNumber)
-                                : post?.phoneNumber}
+                        <Button variant="solid" color="blue" icon={<FaPhone />}>
+                            {post?.phoneNumber}
                         </Button>
                     </div>
                 </div>

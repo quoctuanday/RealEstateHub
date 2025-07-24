@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { getUser, getFavourite, getNotify, logout } from '@/api/api';
 import { useUser } from '@/store/store';
@@ -66,15 +65,29 @@ export default function ClientHeader() {
                 console.error('Lỗi khi fetch favourite:', error);
             }
         };
+        const fetchNotificationOnly = async () => {
+            try {
+                const notifyRes = await getNotify();
+                if (notifyRes?.data?.notify)
+                    setNotifications(notifyRes.data.notify);
+            } catch (error) {
+                console.error('Lỗi khi fetch notify:', error);
+            }
+        };
 
         fetchData();
 
         if (socket) {
+            socket.on('notification-update', fetchNotificationOnly);
             socket.on('favouritePost-update', fetchFavouritesOnly);
-            return () => {
-                socket.off('favouritePost-update', fetchFavouritesOnly);
-            };
         }
+
+        return () => {
+            if (socket) {
+                socket.off('notification-update', fetchNotificationOnly);
+                socket.off('favouritePost-update', fetchFavouritesOnly);
+            }
+        };
     }, [setUserLoginData, socket]);
 
     const handleLogOut = async () => {

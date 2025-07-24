@@ -5,6 +5,11 @@ const serverApi = axios.create({
     timeout: 10000,
 });
 
+const mapApi = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_SERVER_MAP_API,
+    timeout: 10000,
+});
+
 export const serverGetAllNews = (params = {}) =>
     serverApi.get('/news/getAllNews', { params });
 
@@ -25,3 +30,6 @@ export const serverGetNotify = () => serverApi.get('/notification/get');
 
 //Category
 export const serverGetCategory = () => serverApi.get('/category/get');
+
+//Map
+export const getProvince = () => mapApi.get('/api/vietnamprovince');
